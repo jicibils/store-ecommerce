@@ -1,10 +1,17 @@
 // src/components/ProductCard.tsx
-import Image from "next/image";
+"use client";
+
 import { Product } from "@/types/Product";
+import Image from "next/image";
+import { toast } from "sonner";
+
+import { useCart } from "@/contexts/CartContext";
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { addToCart } = useCart();
+
   return (
-    <div className="border rounded-xl p-4 shadow-md hover:shadow-lg transition">
+    <div className="border rounded-xl p-4 shadow-md hover:shadow-lg transition flex flex-col">
       <div className="w-full aspect-square relative mb-2">
         {product.image_url ? (
           <Image
@@ -20,11 +27,17 @@ export default function ProductCard({ product }: { product: Product }) {
         )}
       </div>
       <h3 className="text-lg font-semibold">{product.name}</h3>
-      <p className="text-sm text-gray-600">{product.category}</p>
       <p className="text-md font-bold">${product.price.toLocaleString()}</p>
-      {product.stock === 0 && (
-        <p className="text-red-500 text-sm mt-1">Sin stock</p>
-      )}
+
+      <button
+        onClick={() => {
+          addToCart(product);
+          toast.success(`${product.name} agregado al carrito 🛒`);
+        }}
+        className="mt-auto bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700"
+      >
+        Agregar al carrito
+      </button>
     </div>
   );
 }
