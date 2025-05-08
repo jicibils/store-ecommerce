@@ -6,7 +6,11 @@ CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   customer_name TEXT NOT NULL,
   address TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT NOT NULL,
+  delivery_option TEXT NOT NULL,
   payment_method TEXT NOT NULL,
+  confirm_method TEXT NOT NULL,
   total NUMERIC NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
