@@ -1,158 +1,79 @@
 // src/app/admin/page.tsx
 "use client";
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { uploadImage } from "@/lib/uploadImage";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Moon,
+  Sun,
+  ClipboardList,
+  Settings,
+  Plus,
+  ChartArea,
+} from "lucide-react";
+import { useState, useEffect } from "react";
 
-export default function AdminPage() {
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    price: "",
-    image_url: "",
-    category: "",
-    stock: "",
-    discount: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+export default function AdminDashboardPage() {
+  const [dark, setDark] = useState(true);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+  useEffect(() => {
+    const isDark = localStorage.getItem("theme") === "dark";
+    setDark(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = !dark;
+    setDark(newTheme);
+    localStorage.setItem("theme", newTheme ? "dark" : "light");
+    document.documentElement.classList.toggle("dark", newTheme);
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setLoading(true);
-    try {
-      const imageUrl = await uploadImage(file);
-      setForm((prev) => ({ ...prev, image_url: imageUrl }));
-      setMessage("✅ Imagen subida con éxito");
-    } catch (err) {
-      setMessage("❌ Error al subir imagen");
-      console.log(err);
-    }
-    setLoading(false);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
-    const { error } = await supabase.from("products").insert([
-      {
-        ...form,
-        price: parseFloat(form.price),
-        stock: parseInt(form.stock),
-        discount: parseFloat(form.discount || "0"),
-      },
-    ]);
-
-    setLoading(false);
-
-    if (error) {
-      setMessage(`❌ Error: ${error.message}`);
-    } else {
-      setMessage("✅ Producto cargado exitosamente");
-      setForm({
-        name: "",
-        description: "",
-        price: "",
-        image_url: "",
-        category: "",
-        stock: "",
-        discount: "",
-      });
-    }
-  };
+  const actions = [
+    {
+      icon: <Plus className="w-6 h-6" />,
+      label: "Cargar producto",
+      href: "/admin/products",
+    },
+    {
+      icon: <ClipboardList className="w-6 h-6" />,
+      label: "Ver pedidos",
+      href: "/admin/orders",
+    },
+    {
+      icon: <ChartArea className="w-6 h-6" />,
+      label: "Reportes (Próximamente)",
+      href: "/admin/analytics",
+    },
+    {
+      icon: <Settings className="w-6 h-6" />,
+      label: "Configuración",
+      href: "/admin/settings",
+    },
+  ];
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Agregar producto</h1>
+    <div className="min-h-screen px-6 py-10 bg-background text-foreground">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Panel de administración</h1>
+        <Button variant="ghost" onClick={toggleTheme}>
+          {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          <span className="ml-2 text-sm">
+            {dark ? "Modo claro" : "Modo oscuro"}
+          </span>
+        </Button>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Nombre"
-          onChange={handleChange}
-          value={form.name}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Descripción"
-          onChange={handleChange}
-          value={form.description}
-          className="w-full border p-2 rounded"
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Precio"
-          onChange={handleChange}
-          value={form.price}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="text"
-          name="image_url"
-          placeholder="URL de imagen"
-          onChange={handleChange}
-          value={form.image_url}
-          className="w-full border p-2 rounded"
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="w-full border p-2 rounded"
-        />
-        <input
-          type="text"
-          name="category"
-          placeholder="Categoría"
-          onChange={handleChange}
-          value={form.category}
-          className="w-full border p-2 rounded"
-        />
-        <input
-          type="number"
-          name="stock"
-          placeholder="Stock"
-          onChange={handleChange}
-          value={form.stock}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="number"
-          name="discount"
-          placeholder="Descuento (%)"
-          onChange={handleChange}
-          value={form.discount}
-          className="w-full border p-2 rounded"
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-black text-white px-4 py-2 rounded"
-        >
-          {loading ? "Cargando..." : "Cargar producto"}
-        </button>
-      </form>
-
-      {message && <p className="mt-4">{message}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {actions.map((action) => (
+          <Link href={action.href} key={action.href}>
+            <div className="border rounded-lg p-6 hover:bg-accent transition shadow flex items-center gap-4 cursor-pointer">
+              <div className="text-primary">{action.icon}</div>
+              <span className="text-lg font-medium">{action.label}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
