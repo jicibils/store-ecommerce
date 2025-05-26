@@ -53,7 +53,8 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchProducts(true);
-  }, [query, category, fetchProducts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, category]);
 
   return (
     <main className="p-6">

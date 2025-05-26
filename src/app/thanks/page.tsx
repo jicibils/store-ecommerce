@@ -32,7 +32,8 @@ export default function ThanksPage() {
       clearTimeout(timeout);
       clearInterval(interval);
     };
-  }, [router, seconds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto p-6 text-center space-y-6">
