@@ -2,11 +2,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import emailjs from "emailjs-com";
 import { supabase } from "@/lib/supabase";
 import { useCart } from "@/contexts/CartContext";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 type Settings = {
   admin_email: string;
@@ -23,7 +26,8 @@ export default function CheckoutPage() {
     payment_method: "efectivo",
     confirm_method: "",
   });
-  const { cart, clearCart } = useCart();
+  const { cart, addToCart, removeFromCart, clearCart } = useCart();
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [settings, setSettings] = useState({
@@ -171,104 +175,170 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Finalizar pedido</h1>
+    <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* 🧾 RESUMEN DEL PEDIDO */}
+      <div className="md:col-span-2 space-y-6">
+        <h1 className="text-2xl font-bold">Resumen del pedido 🧾</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="name"
-          type="text"
-          placeholder="Nombre completo"
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <select
-          name="delivery_option"
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        >
-          <option value="">¿Cómo recibís?</option>
-          <option value="entrega">Entrega a domicilio</option>
-          <option value="retiro">Retiro en el local</option>
-        </select>
-        {form.delivery_option === "entrega" && (
+        <ul className="space-y-4">
+          {cart.map((item) => (
+            <li key={item.id} className="flex items-center gap-4 border-b pb-4">
+              <div className="w-14 h-14 relative rounded overflow-hidden bg-muted shrink-0">
+                {item.image_url && (
+                  <Image
+                    src={item.image_url}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                  />
+                )}
+              </div>
+
+              <div className="flex-1">
+                <p className="font-medium">{item.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {item.unit} – ${item.price.toLocaleString()} c/u
+                </p>
+
+                <div className="flex items-center gap-2 mt-1">
+                  <button
+                    onClick={() => {
+                      if (item.quantity > 1) {
+                        addToCart({ ...item, quantity: -1 } as any);
+                      } else {
+                        removeFromCart(item.id);
+                      }
+                    }}
+                    className="px-2 py-1 rounded border text-sm"
+                  >
+                    ➖
+                  </button>
+                  <span className="w-6 text-center">{item.quantity}</span>
+                  <button
+                    onClick={() => addToCart({ ...item, quantity: 1 } as any)}
+                    className="px-2 py-1 rounded border text-sm"
+                  >
+                    ➕
+                  </button>
+
+                  <ConfirmDialog
+                    title="¿Eliminar producto? 🗑"
+                    description={`¿Querés eliminar ${item.name} del carrito?`}
+                    onConfirm={() => {
+                      removeFromCart(item.id);
+                      toast.success(`${item.name} eliminado del carrito`);
+                    }}
+                  >
+                    <button className="ml-4 text-destructive text-sm hover:underline">
+                      🗑
+                    </button>
+                  </ConfirmDialog>
+                </div>
+              </div>
+
+              <p className="font-semibold whitespace-nowrap">
+                ${Number(item.price * item.quantity).toLocaleString()}
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        <div className="flex justify-between items-center pt-6 border-t">
+          <p className="text-lg font-semibold">Total:</p>
+          <p className="text-xl font-bold text-primary">
+            ${total.toLocaleString()}
+          </p>
+        </div>
+      </div>
+
+      {/* 📝 FORMULARIO */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-bold">Tus datos 📇</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            name="address"
+            name="name"
             type="text"
-            placeholder="Dirección de entrega"
+            placeholder="Nombre completo"
             onChange={handleChange}
             className="w-full border p-2 rounded"
             required
           />
-        )}
-        <select
-          name="confirm_method"
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        >
-          <option value="">¿Cómo querés recibir la confirmación?</option>
-          <option value="email">Por Email</option>
-          <option value="whatsapp">Por WhatsApp</option>
-          <option value="ambos">Ambos</option>
-        </select>
-        <input
-          name="email"
-          type="email"
-          placeholder="Tu email"
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          name="phone"
-          type="tel"
-          placeholder="Tu WhatsApp"
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
+          <select
+            name="delivery_option"
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          >
+            <option value="">¿Cómo recibís?</option>
+            <option value="entrega">Entrega a domicilio</option>
+            <option value="retiro">Retiro en el local</option>
+          </select>
+          {form.delivery_option === "entrega" && (
+            <input
+              name="address"
+              type="text"
+              placeholder="Dirección de entrega"
+              onChange={handleChange}
+              className="w-full border p-2 rounded"
+              required
+            />
+          )}
+          <select
+            name="confirm_method"
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          >
+            <option value="">¿Cómo querés recibir la confirmación?</option>
+            <option value="email">Por Email</option>
+            <option value="whatsapp">Por WhatsApp</option>
+            <option value="ambos">Ambos</option>
+          </select>
+          <input
+            name="email"
+            type="email"
+            placeholder="Tu email"
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          />
+          <input
+            name="phone"
+            type="tel"
+            placeholder="Tu WhatsApp"
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            required
+          />
 
-        <select
-          name="payment_method"
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-        >
-          <option value="efectivo">Efectivo</option>
-          <option value="transferencia">Transferencia</option>
-          <option value="mercado_pago">Mercado Pago</option>
-        </select>
+          <select
+            name="payment_method"
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          >
+            <option value="efectivo">Efectivo</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="mercado_pago">Mercado Pago</option>
+          </select>
 
-        <div className="border-t pt-4">
-          <h2 className="font-semibold mb-2">Resumen del pedido:</h2>
-          <ul className="space-y-1">
-            {cart.map((item) => (
-              <li key={item.id}>
-                {item.name} x{item.quantity} – ${item.price * item.quantity}
-              </li>
-            ))}
-          </ul>
-          <p className="font-bold mt-2">Total: ${total.toLocaleString()}</p>
-        </div>
+          <button
+            type="submit"
+            disabled={loading || cart.length === 0}
+            className={`w-full bg-black border-1 border-white text-white px-4 py-2 hover:bg-white hover:text-black transition ${
+              loading || cart.length === 0
+                ? "cursor-not-allowed"
+                : "cursor-pointer"
+            }`}
+          >
+            {loading
+              ? "Enviando..."
+              : `Confirmar pedido 🧾 ($${total.toLocaleString()})`}
+          </button>
+        </form>
 
-        <button
-          type="submit"
-          disabled={loading || cart.length === 0}
-          className={`bg-black border-1 border-white text-white px-4 py-2 hover:bg-white hover:text-black transition ${
-            loading || cart.length === 0
-              ? "cursor-not-allowed"
-              : "cursor-pointer"
-          }`}
-        >
-          {loading
-            ? "Enviando..."
-            : `Confirmar pedido ($${total.toLocaleString()})`}
-        </button>
-      </form>
-
-      {message && <p className="mt-4">{message}</p>}
+        {message && <p className="mt-2 text-sm">{message}</p>}
+      </div>
     </div>
   );
 }
