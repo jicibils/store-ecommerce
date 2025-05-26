@@ -16,7 +16,7 @@ export default function ProductsSearch({
     }, 300);
 
     return () => clearTimeout(handler);
-  }, [query, category]);
+  }, [query, category, onChange]);
 
   return (
     <section className="w-full  mx-auto px-4 py-8">

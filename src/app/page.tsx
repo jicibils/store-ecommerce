@@ -1,7 +1,7 @@
 // src/app/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { Product } from "@/types/Product";
 import ProductCard from "@/components/ProductCard";
@@ -18,39 +18,42 @@ export default function HomePage() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const fetchProducts = async (reset = false) => {
-    setLoading(true);
+  const fetchProducts = useCallback(
+    async (reset = false) => {
+      setLoading(true);
 
-    const from = page * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
+      const from = page * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
 
-    let queryBuilder = supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true);
+      let queryBuilder = supabase
+        .from("products")
+        .select("*")
+        .eq("is_active", true);
 
-    if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
-    if (category) queryBuilder = queryBuilder.eq("category", category);
+      if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
+      if (category) queryBuilder = queryBuilder.eq("category", category);
 
-    const { data, error } = await queryBuilder.range(from, to);
+      const { data, error } = await queryBuilder.range(from, to);
 
-    if (!error && data) {
-      if (reset) {
-        setProducts(data);
-        setPage(1);
-        setHasMore(data.length === PAGE_SIZE);
-      } else {
-        setProducts((prev) => [...prev, ...data]);
-        setPage((prev) => prev + 1);
-        setHasMore(data.length === PAGE_SIZE);
+      if (!error && data) {
+        if (reset) {
+          setProducts(data);
+          setPage(1);
+          setHasMore(data.length === PAGE_SIZE);
+        } else {
+          setProducts((prev) => [...prev, ...data]);
+          setPage((prev) => prev + 1);
+          setHasMore(data.length === PAGE_SIZE);
+        }
       }
-    }
-    setLoading(false);
-  };
+      setLoading(false);
+    },
+    [category, page, query]
+  );
 
   useEffect(() => {
     fetchProducts(true);
-  }, [query, category]);
+  }, [query, category, fetchProducts]);
 
   return (
     <main className="p-6">

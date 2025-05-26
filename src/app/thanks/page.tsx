@@ -32,7 +32,7 @@ export default function ThanksPage() {
       clearTimeout(timeout);
       clearInterval(interval);
     };
-  }, []);
+  }, [router, seconds]);
 
   return (
     <div className="max-w-2xl mx-auto p-6 text-center space-y-6">
