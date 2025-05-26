@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS products (
   price NUMERIC NOT NULL,
   image_url TEXT,
   category TEXT,
+  unit TEXT,
   stock INTEGER DEFAULT 0,
   discount NUMERIC DEFAULT 0,
   is_active BOOLEAN DEFAULT TRUE,
