@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import emailjs from "emailjs-com";
+import { ShoppingCart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCart } from "@/contexts/CartContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -165,9 +166,18 @@ export default function CheckoutPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="max-w-xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-4">Tu carrito está vacío</h1>
-        <Link href="/" className="text-blue-600 underline">
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-4">
+        <div className="text-6xl">
+          <ShoppingCart className="w-12 h-12 mx-auto" />
+        </div>
+        <h2 className="text-2xl font-bold">Tu carrito está vacío</h2>
+        <p className="text-muted-foreground">
+          ¡Agregá productos para comenzar tu pedido!
+        </p>
+        <Link
+          href="/"
+          className="bg-background text-foreground border border-black dark:border-white px-4 py-2 rounded hover:bg-foreground hover:text-background transition"
+        >
           Volver a la tienda
         </Link>
       </div>

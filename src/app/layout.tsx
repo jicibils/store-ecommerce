@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 
 import { CartProvider } from "@/contexts/CartContext";
+import FloatingCartBar from "@/components/FloatingCartBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
+          <FloatingCartBar />
         </CartProvider>
         <Toaster richColors position="top-right" />
       </body>
