@@ -19,9 +19,10 @@ export default function ProductDetailsSheet({ product }: { product: Product }) {
 
   const handleAddToCart = () => {
     addToCart({ ...product, quantity } as CartItem);
-
     toast.success(`${product.name} x${quantity} agregado al carrito`);
   };
+
+  const isOverStock = product.stock !== undefined && quantity > product.stock;
 
   return (
     <Sheet>
@@ -31,14 +32,17 @@ export default function ProductDetailsSheet({ product }: { product: Product }) {
         </button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-md flex flex-col max-h-screen overflow-y-auto p-6"
+      >
         <SheetHeader>
-          <SheetTitle>{product.name}</SheetTitle>
+          <SheetTitle className="text-xl font-bold">{product.name}</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-4 space-y-4 flex-1">
           {product.image_url && (
-            <div className="relative w-full aspect-square rounded-lg overflow-hidden">
+            <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-md">
               <Image
                 src={product.image_url}
                 alt={product.name}
@@ -46,6 +50,17 @@ export default function ProductDetailsSheet({ product }: { product: Product }) {
                 className="object-cover"
               />
             </div>
+          )}
+
+          {product.category && (
+            <p className="text-xs text-primary uppercase tracking-wide">
+              {product.category}{" "}
+              {product.is_offer && (
+                <span className="ml-1 text-destructive font-semibold">
+                  EN OFERTA 🔥
+                </span>
+              )}
+            </p>
           )}
 
           {product.description && (
@@ -75,13 +90,25 @@ export default function ProductDetailsSheet({ product }: { product: Product }) {
             />
           </div>
 
-          <button
-            onClick={handleAddToCart}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md text-sm font-medium transition"
-          >
-            Agregar al carrito
-          </button>
+          {isOverStock && (
+            <p className="text-sm text-red-600">
+              Solo hay {product.stock} unidades disponibles
+            </p>
+          )}
         </div>
+
+        <button
+          onClick={handleAddToCart}
+          disabled={isOverStock}
+          className={`mt-6 py-2 px-4 rounded-md text-sm font-medium transition focus:outline-none focus:ring-2 w-full
+            ${
+              isOverStock
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
+            }`}
+        >
+          Agregar al carrito
+        </button>
       </SheetContent>
     </Sheet>
   );

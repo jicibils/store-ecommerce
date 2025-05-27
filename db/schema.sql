@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS products (
   image_url TEXT,
   category TEXT,
   unit TEXT,
+  is_offer BOOLEAN DEFAULT FALSE,
   stock INTEGER DEFAULT 0,
   discount NUMERIC DEFAULT 0,
   is_active BOOLEAN DEFAULT TRUE,

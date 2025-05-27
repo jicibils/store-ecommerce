@@ -11,4 +11,5 @@ export type Product = {
   discount?: number;
   is_active: boolean;
   created_at: string;
+  is_offer?: boolean;
 };
