@@ -15,6 +15,7 @@ export default function HomePage() {
   const [page, setPage] = useState(0);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+  const [filter, setFilter] = useState<"all" | "offers">("all");
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -22,13 +23,19 @@ export default function HomePage() {
     async (reset = false) => {
       setLoading(true);
 
-      const from = page * PAGE_SIZE;
+      const from = reset ? 0 : page * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
       let queryBuilder = supabase
         .from("products")
         .select("*")
         .eq("is_active", true);
+
+      if (filter === "offers") {
+        queryBuilder = queryBuilder.eq("is_offer", true);
+      } else {
+        queryBuilder = queryBuilder.eq("is_offer", false);
+      }
 
       if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
       if (category) queryBuilder = queryBuilder.eq("category", category);
@@ -46,18 +53,44 @@ export default function HomePage() {
           setHasMore(data.length === PAGE_SIZE);
         }
       }
+
       setLoading(false);
     },
-    [category, page, query]
+    [category, page, query, filter]
   );
 
   useEffect(() => {
     fetchProducts(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, category]);
+  }, [query, category, filter]);
 
   return (
     <main className="p-6">
+      {/* Pestañas de filtro */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setFilter("all")}
+          className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
+            filter === "all"
+              ? "bg-black text-white"
+              : "bg-muted text-foreground"
+          }`}
+        >
+          Todos
+        </button>
+        <button
+          onClick={() => setFilter("offers")}
+          className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
+            filter === "offers"
+              ? "bg-black text-white"
+              : "bg-muted text-foreground"
+          }`}
+        >
+          Ofertas 🔥
+        </button>
+      </div>
+
+      {/* Buscador y categoría */}
       <ProductsSearch
         onChange={(q, c) => {
           setQuery(q);
@@ -94,8 +127,9 @@ export default function HomePage() {
           </div>
         </>
       )}
+
       {loading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-6">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
             <ProductSkeleton key={i} />
           ))}
