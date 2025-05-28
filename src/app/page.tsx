@@ -12,7 +12,6 @@ const PAGE_SIZE = 12;
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [page, setPage] = useState(0);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [filter, setFilter] = useState<"all" | "offers">("all");
@@ -23,19 +22,17 @@ export default function HomePage() {
     async (reset = false) => {
       setLoading(true);
 
-      const from = reset ? 0 : page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
+      const offset = reset ? 0 : products.length;
+      const from = offset;
+      const to = offset + PAGE_SIZE - 1;
 
       let queryBuilder = supabase
         .from("products")
         .select("*")
         .eq("is_active", true);
 
-      if (filter === "offers") {
-        queryBuilder = queryBuilder.eq("is_offer", true);
-      } else {
-        queryBuilder = queryBuilder.eq("is_offer", false);
-      }
+      if (filter === "offers") queryBuilder = queryBuilder.eq("is_offer", true);
+      else queryBuilder = queryBuilder.eq("is_offer", false);
 
       if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
       if (category) queryBuilder = queryBuilder.eq("category", category);
@@ -45,18 +42,15 @@ export default function HomePage() {
       if (!error && data) {
         if (reset) {
           setProducts(data);
-          setPage(1);
-          setHasMore(data.length === PAGE_SIZE);
         } else {
           setProducts((prev) => [...prev, ...data]);
-          setPage((prev) => prev + 1);
-          setHasMore(data.length === PAGE_SIZE);
         }
+        setHasMore(data.length === PAGE_SIZE);
       }
 
       setLoading(false);
     },
-    [category, page, query, filter]
+    [category, query, filter, products.length]
   );
 
   useEffect(() => {
@@ -95,7 +89,6 @@ export default function HomePage() {
         onChange={(q, c) => {
           setQuery(q);
           setCategory(c);
-          setPage(0);
         }}
       />
 
