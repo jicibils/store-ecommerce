@@ -234,7 +234,7 @@ export default function CheckoutPage() {
               <div className="flex-1">
                 <p className="font-medium">{item.name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {item.unit} – ${item.price.toLocaleString()} c/u
+                  ${item.price.toLocaleString()} x {item.unit}
                 </p>
 
                 <div className="flex items-center gap-2 mt-1">
