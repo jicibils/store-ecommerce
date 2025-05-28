@@ -29,7 +29,8 @@ export default function HomePage() {
       let queryBuilder = supabase
         .from("products")
         .select("*")
-        .eq("is_active", true);
+        .eq("is_active", true)
+        .order("name", { ascending: true });
 
       if (filter === "offers") queryBuilder = queryBuilder.eq("is_offer", true);
       else queryBuilder = queryBuilder.eq("is_offer", false);
