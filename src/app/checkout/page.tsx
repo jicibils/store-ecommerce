@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import emailjs from "emailjs-com";
 import { ShoppingCart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useCart } from "@/contexts/CartContext";
+import { CartItem, useCart } from "@/contexts/CartContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 type Settings = {
@@ -83,85 +83,112 @@ export default function CheckoutPage() {
     window.open(`https://wa.me/${data.number}?text=${mensaje}`, "_blank");
   };
 
+  async function validateStock(cart: CartItem[]) {
+    const currentProducts: { id: string; stock: number }[] = [];
+
+    for (const item of cart) {
+      const { data: product, error } = await supabase
+        .from("products")
+        .select("stock")
+        .eq("id", item.id)
+        .single();
+
+      if (error || !product) {
+        throw new Error(`Error al verificar stock para ${item.name}`);
+      }
+
+      if (product.stock < item.quantity) {
+        throw new Error(
+          `Stock insuficiente para ${item.name}. Solo quedan ${product.stock}`
+        );
+      }
+
+      currentProducts.push({ id: item.id, stock: product.stock });
+    }
+
+    return currentProducts;
+  }
+
+  async function discountStock(
+    currentProducts: { id: string; stock: number }[],
+    cart: CartItem[]
+  ) {
+    for (const item of cart) {
+      const product = currentProducts.find((p) => p.id === item.id);
+      if (!product) {
+        continue;
+      }
+
+      const newStock = product.stock - item.quantity;
+
+      const { error } = await supabase
+        .from("products")
+        .update({ stock: newStock })
+        .eq("id", item.id);
+
+      if (error) {
+        console.error(`❌ Error actualizando stock de ${item.name}`, error);
+      }
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
-    const { data: order, error } = await supabase
-      .from("orders")
-      .insert([
-        {
-          customer_name: form.name,
-          address: form.address,
-          phone: form.phone,
-          email: form.email,
-          delivery_option: form.delivery_option,
-          payment_method: form.payment_method,
-          confirm_method: form.confirm_method,
-          total,
-        },
-      ])
-      .select()
-      .single();
+    try {
+      const currentProducts = await validateStock(cart);
 
-    if (error || !order) {
-      setMessage(`❌ Error al crear pedido`);
-      setLoading(false);
-      return;
-    }
+      const { data: order, error } = await supabase
+        .from("orders")
+        .insert([
+          {
+            customer_name: form.name,
+            address: form.address,
+            phone: form.phone,
+            email: form.email,
+            delivery_option: form.delivery_option,
+            payment_method: form.payment_method,
+            confirm_method: form.confirm_method,
+            total,
+          },
+        ])
+        .select()
+        .single();
 
-    const items = cart.map((p) => ({
-      order_id: order.id,
-      product_id: p.id,
-      quantity: p.quantity,
-      price: p.price,
-    }));
+      if (error || !order) throw new Error("❌ Error al crear pedido");
 
-    const { error: itemsError } = await supabase
-      .from("order_items")
-      .insert(items);
+      await discountStock(currentProducts, cart);
 
-    if (itemsError) {
-      setMessage(`❌ Error al guardar productos del pedido`);
-    } else {
+      const items = cart.map((p) => ({
+        order_id: order.id,
+        product_id: p.id,
+        quantity: p.quantity,
+        price: p.price,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(items);
+
+      if (itemsError)
+        throw new Error("❌ Error al guardar productos del pedido");
+
       setMessage("✅ Pedido realizado con éxito");
       clearCart();
 
-      if (form.confirm_method === "email" || form.confirm_method === "ambos") {
-        // EMAIL AL CUSTOMER
-        // await sendOrderEmail({
-        //   customer_name: form.name,
-        //   customer_email: form.email,
-        //   admin_email: "tuemailadmin@gmail.com",
-        //   address: form.address,
-        //   phone: form.phone,
-        //   delivery_option: form.delivery_option,
-        //   total,
-        //   items: cart.map((i) => `${i.name} x${i.quantity}`).join("; "),
-        //   payment_method: form.payment_method,
-        // });
-      }
-
-      if (
-        form.confirm_method === "whatsapp" ||
-        form.confirm_method === "ambos"
-      ) {
-        //openWhatsAppMessage(...)
-      }
-
-      // WSP AL ADMIN
-      // openWhatsAppMessage({
-      //   number: settings?.admin_phone,
-      //   name: form.name,
-      //   total,
-      //   payment_method: form.payment_method,
-      // });
+      // Si querés habilitar los mensajes:
+      // if (form.confirm_method === "email" || form.confirm_method === "ambos") await sendOrderEmail({...})
+      // if (form.confirm_method === "whatsapp" || form.confirm_method === "ambos") openWhatsAppMessage({...})
+      // openWhatsAppMessage({...}) // admin
 
       router.push("/thanks");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   if (cart.length === 0) {
