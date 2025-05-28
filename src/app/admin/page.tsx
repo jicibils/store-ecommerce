@@ -2,37 +2,18 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  Moon,
-  Sun,
-  ClipboardList,
-  Settings,
-  Plus,
-  ChartArea,
-} from "lucide-react";
-import { useState, useEffect } from "react";
+import { ClipboardList, Settings, Plus, ChartArea, List } from "lucide-react";
 
 export default function AdminDashboardPage() {
-  const [dark, setDark] = useState(true);
-
-  useEffect(() => {
-    const isDark = localStorage.getItem("theme") === "dark";
-    setDark(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = !dark;
-    setDark(newTheme);
-    localStorage.setItem("theme", newTheme ? "dark" : "light");
-    document.documentElement.classList.toggle("dark", newTheme);
-  };
-
   const actions = [
     {
       icon: <Plus className="w-6 h-6" />,
       label: "Cargar producto",
+      href: "/admin/product",
+    },
+    {
+      icon: <List className="w-6 h-6" />,
+      label: "Ver productos",
       href: "/admin/products",
     },
     {
@@ -56,12 +37,6 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen px-6 py-10 bg-background text-foreground">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Panel de administración</h1>
-        <Button variant="ghost" onClick={toggleTheme}>
-          {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          <span className="ml-2 text-sm">
-            {dark ? "Modo claro" : "Modo oscuro"}
-          </span>
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
