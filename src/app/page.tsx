@@ -29,6 +29,7 @@ export default function HomePage() {
       let queryBuilder = supabase
         .from("products")
         .select("*")
+        .gt("stock", 0)
         .eq("is_active", true)
         .order("name", { ascending: true });
 
