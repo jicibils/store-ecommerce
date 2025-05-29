@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Product } from "@/types/Product";
 import { CartItem, useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
@@ -11,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useState } from "react";
+import capitalize from "lodash.capitalize";
 
 export default function ProductDetailsSheet({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -37,7 +38,9 @@ export default function ProductDetailsSheet({ product }: { product: Product }) {
         className="w-full sm:max-w-md flex flex-col max-h-screen overflow-y-auto p-6"
       >
         <SheetHeader>
-          <SheetTitle className="text-xl font-bold">{product.name}</SheetTitle>
+          <SheetTitle className="text-xl font-bold">
+            {capitalize(product.name)}
+          </SheetTitle>
         </SheetHeader>
 
         <div className="mt-4 space-y-4 flex-1">
