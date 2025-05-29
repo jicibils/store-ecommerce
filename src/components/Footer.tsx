@@ -53,8 +53,8 @@ export default function Footer() {
           <Link href="/checkout" className="hover:underline block">
             Carrito
           </Link>
-          <Link href="/admin" className="hover:underline block">
-            Admin
+          <Link href="/contact" className="hover:underline block">
+            Contacto
           </Link>
         </div>
       </div>
