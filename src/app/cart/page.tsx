@@ -29,6 +29,8 @@ export default function CartPage() {
                       alt={item.name}
                       fill
                       className="object-cover rounded"
+                      placeholder="blur"
+                      blurDataURL="/placeholder.png"
                     />
                   )}
                 </div>

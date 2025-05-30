@@ -183,7 +183,7 @@ export default function CheckoutPage() {
       // if (form.confirm_method === "whatsapp" || form.confirm_method === "ambos") openWhatsAppMessage({...})
       // openWhatsAppMessage({...}) // admin
 
-      router.push("/thanks");
+      router.push(`/thanks?orderId=${order.id}`);
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -227,6 +227,8 @@ export default function CheckoutPage() {
                     alt={item.name}
                     fill
                     className="object-cover"
+                    placeholder="blur"
+                    blurDataURL="/placeholder.png"
                   />
                 )}
               </div>
@@ -354,6 +356,7 @@ export default function CheckoutPage() {
             onChange={handleChange}
             className="w-full border p-2 rounded"
           >
+            <option value="">¿Cómo querés pagar?</option>
             <option value="efectivo">Efectivo</option>
             <option value="transferencia">Transferencia</option>
             <option value="mercado_pago">Mercado Pago</option>
