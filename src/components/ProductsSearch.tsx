@@ -37,7 +37,6 @@ export default function ProductsSearch({
           <option value="">Todas las categorías</option>
           <option value="frutas">Frutas</option>
           <option value="verduras">Verduras</option>
-          <option value="viandas">Viandas</option>
         </select>
       </div>
     </section>
