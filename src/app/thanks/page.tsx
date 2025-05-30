@@ -4,10 +4,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ThanksPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
   const [seconds, setSeconds] = useState(7);
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function ThanksPage() {
 
     // 🔁 Redirección
     const timeout = setTimeout(() => {
-      router.push("/");
+      router.push(`/order/${orderId}`);
     }, seconds * 1000);
 
     return () => {
@@ -37,10 +39,10 @@ export default function ThanksPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 text-center space-y-6">
-      <h1 className="text-3xl font-bold">¡Gracias por tu pedido! 🎉</h1>
+      <h1 className="text-3xl font-bold">¡Gracias por tu compra! 🎉</h1>
       <p className="text-muted-foreground text-lg">
-        Tu orden fue recibida correctamente. Te estaremos contactando pronto
-        para coordinar la entrega 📦
+        Ya recibimos tu orden y la estamos procesando. Podés ver todos los
+        detalles en la siguiente pantalla 📦
       </p>
 
       <p className="text-sm text-muted-foreground">
@@ -49,10 +51,10 @@ export default function ThanksPage() {
       </p>
 
       <Link
-        href="/"
+        href={`/order/${orderId}`}
         className="inline-block bg-black text-white px-6 py-3 rounded hover:bg-white hover:text-black border border-black transition"
       >
-        Volver a la tienda 🛒
+        Ir a los detalles del pedido 🔍
       </Link>
     </div>
   );
