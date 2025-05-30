@@ -7,6 +7,7 @@ import { Product } from "@/types/Product";
 import ProductCard from "@/components/ProductCard";
 import ProductsSearch from "@/components/ProductsSearch";
 import ProductSkeleton from "@/components/ProductSkeleton";
+import MarketComingSoon from "@/components/MarketComingSoon";
 
 const PAGE_SIZE = 12;
 
@@ -14,12 +15,14 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
-  const [filter, setFilter] = useState<"all" | "offers">("all");
+  const [filter, setFilter] = useState<"all" | "offers" | "market">("all");
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const fetchProducts = useCallback(
     async (reset = false) => {
+      if (filter === "market") return; // no busca productos si es market
+
       setLoading(true);
 
       const offset = reset ? 0 : products.length;
@@ -34,7 +37,6 @@ export default function HomePage() {
         .order("name", { ascending: true });
 
       if (filter === "offers") queryBuilder = queryBuilder.eq("is_offer", true);
-      else queryBuilder = queryBuilder.eq("is_offer", false);
 
       if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
       if (category) queryBuilder = queryBuilder.eq("category", category);
@@ -84,17 +86,31 @@ export default function HomePage() {
         >
           Ofertas 🔥
         </button>
+        <button
+          onClick={() => setFilter("market")}
+          className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
+            filter === "market"
+              ? "bg-black text-white"
+              : "bg-muted text-foreground"
+          }`}
+        >
+          Market 📦
+        </button>
       </div>
 
-      {/* Buscador y categoría */}
-      <ProductsSearch
-        onChange={(q, c) => {
-          setQuery(q);
-          setCategory(c);
-        }}
-      />
+      {/* Buscador y categoría solo si no es Market */}
+      {filter !== "market" && (
+        <ProductsSearch
+          onChange={(q, c) => {
+            setQuery(q);
+            setCategory(c);
+          }}
+        />
+      )}
 
-      {products.length === 0 ? (
+      {filter === "market" ? (
+        <MarketComingSoon />
+      ) : products.length === 0 ? (
         <p className="text-center text-muted-foreground">
           No se encontraron productos.
         </p>
@@ -123,7 +139,7 @@ export default function HomePage() {
         </>
       )}
 
-      {loading && (
+      {loading && filter !== "market" && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-6">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
             <ProductSkeleton key={i} />
