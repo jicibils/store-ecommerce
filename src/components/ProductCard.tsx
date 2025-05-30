@@ -67,7 +67,7 @@ export default function ProductCard({ product }: { product: Product }) {
               e.stopPropagation();
               handleAdd();
             }}
-            className="absolute bottom-2 right-2 w-8 h-8 bg-white border rounded-full text-lg shadow flex items-center justify-center hover:bg-muted z-10"
+            className="absolute bottom-2 right-2 w-8 h-8 bg-card border border-border text-foreground rounded-full text-lg shadow flex items-center justify-center hover:bg-muted z-10"
           >
             +
           </button>
@@ -76,7 +76,7 @@ export default function ProductCard({ product }: { product: Product }) {
         {cartItem && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute bottom-2 right-2 bg-white rounded-full shadow flex items-center px-2 py-1 gap-2 z-10"
+            className="absolute bottom-2 right-2 bg-card border border-border text-foreground rounded-full shadow flex items-center px-2 py-1 gap-2 z-10"
           >
             <button
               onClick={() => handleUpdate(cartItem.quantity - 1)}
