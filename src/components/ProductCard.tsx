@@ -4,36 +4,142 @@
 import { Product } from "@/types/Product";
 import Image from "next/image";
 import capitalize from "lodash.capitalize";
+import { useState } from "react";
+import { useCart } from "@/contexts/CartContext";
 import ProductDetailsSheet from "./ProductDetailsSheet";
 
 export default function ProductCard({ product }: { product: Product }) {
+  const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
+  const [open, setOpen] = useState(false);
+  const cartItem = cart.find((item) => item.id === product.id);
+
+  const discountedPrice = product.discount
+    ? Math.round(product.price * (1 - product.discount / 100))
+    : product.price;
+
+  const handleAdd = () => {
+    if (!product.stock || (cartItem?.quantity ?? 0) >= product.stock) return;
+    addToCart({ ...product, price: discountedPrice });
+  };
+
+  const handleUpdate = (qty: number) => {
+    if (qty <= 0) {
+      removeFromCart(product.id);
+    } else if (qty <= (product.stock ?? 0)) {
+      updateQuantity(product.id, qty);
+    }
+  };
+
+  const showStockWarning =
+    !!cartItem?.quantity && cartItem?.quantity >= (product.stock ?? 0);
+
   return (
-    <div className="rounded-xl border bg-card p-3 shadow-sm hover:shadow-md transition-transform hover:scale-[1.01] text-card-foreground flex flex-col overflow-hidden text-sm">
-      <div className="relative aspect-square w-full">
+    <div className="relative rounded-xl border bg-card p-3 shadow-sm hover:shadow-md transition-transform hover:scale-[1.01] text-card-foreground flex flex-col overflow-hidden text-sm">
+      <div
+        className="relative aspect-square w-full cursor-pointer"
+        onClick={() => setOpen(true)}
+      >
+        {!!product.discount && product.discount > 0 && (
+          <div className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded shadow z-10">
+            {product.discount}% OFF
+          </div>
+        )}
+
         {product.image_url ? (
           <Image
             src={product.image_url}
             alt={product.name}
             fill
             sizes="(min-width: 768px) 33vw, 100vw"
-            className="object-cover"
+            className="object-cover rounded-md"
+            placeholder="blur"
+            blurDataURL="/placeholder.png"
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center">
             <span className="text-sm text-muted-foreground">Sin imagen</span>
           </div>
         )}
+
+        {!cartItem && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAdd();
+            }}
+            className="absolute bottom-2 right-2 w-8 h-8 bg-white border rounded-full text-lg shadow flex items-center justify-center hover:bg-muted z-10"
+          >
+            +
+          </button>
+        )}
+
+        {cartItem && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute bottom-2 right-2 bg-white rounded-full shadow flex items-center px-2 py-1 gap-2 z-10"
+          >
+            <button
+              onClick={() => handleUpdate(cartItem.quantity - 1)}
+              className="w-6 h-6 rounded-full border text-sm flex items-center justify-center hover:bg-muted"
+            >
+              –
+            </button>
+            <span className="text-sm font-semibold">{cartItem.quantity}</span>
+            <button
+              onClick={() => handleUpdate(cartItem.quantity + 1)}
+              className="w-6 h-6 rounded-full border text-sm flex items-center justify-center hover:bg-muted"
+              disabled={showStockWarning}
+            >
+              +
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="p-4 flex flex-col gap-2 flex-1">
-        <h3 className="text-base font-semibold leading-tight">
+      <div className="p-4 flex flex-col gap-1 flex-1">
+        <h3 className="text-base font-semibold leading-tight flex gap-2 items-center">
           {capitalize(product.name)}
+          {product.is_offer && (
+            <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+              🔥 OFERTA
+            </span>
+          )}
         </h3>
-        <p className="text-lg font-bold text-primary">
-          ${product.price.toLocaleString()}
+
+        <div className="text-lg font-bold text-primary leading-tight">
+          ${discountedPrice.toLocaleString()}
+          {!!product.discount && product.discount > 0 && (
+            <span className="text-sm line-through ml-2 text-muted-foreground">
+              ${product.price.toLocaleString()}
+            </span>
+          )}
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          {product.unit} · $ {discountedPrice.toLocaleString()}/{product.unit}
         </p>
-        <ProductDetailsSheet product={product} />
+
+        {showStockWarning && (
+          <p className="text-xs text-red-600 mt-1">
+            ❗ Máximo disponible: {product.stock}
+          </p>
+        )}
+
+        <button
+          onClick={() => setOpen(true)}
+          className="mt-2 text-xs self-start text-muted-foreground underline hover:text-primary cursor-pointer"
+        >
+          Ver detalles
+        </button>
       </div>
+
+      {open && (
+        <ProductDetailsSheet
+          product={product}
+          open={open}
+          onOpenChange={setOpen}
+        />
+      )}
     </div>
   );
 }
