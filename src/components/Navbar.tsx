@@ -2,22 +2,12 @@
 
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
-import {
-  ShoppingCart,
-  Home,
-  LayoutDashboard,
-  Sun,
-  Moon,
-  Menu,
-} from "lucide-react";
+import { ShoppingCart, Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { APP_NAME, LOGO_EMOJI } from "@/lib/constants";
-import {
-  Sheet,
-  SheetTitle,
-  SheetTrigger,
-  SheetContent,
-} from "@/components/ui/sheet";
+import { APP_NAME } from "@/lib/constants";
+
+import Logo from "./Logo";
+import LeftMenu from "./LeftMenu";
 
 export default function Navbar() {
   const { cart } = useCart();
@@ -36,50 +26,18 @@ export default function Navbar() {
     document.documentElement.classList.toggle("dark", newTheme);
   };
 
-  const navLinks = [
-    { label: "Inicio", href: "/", icon: <Home className="w-5 h-5" /> },
-    {
-      label: "Admin",
-      href: "/admin",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-    },
-  ];
-
   return (
     <nav className="w-full px-6 py-3 flex justify-between items-center bg-background border-b border-border sticky top-0 z-50">
       {/* Left menu */}
-      <Sheet>
-        <SheetTrigger asChild>
-          <button className="hover:text-primary transition" aria-label="Menu">
-            <Menu className="w-6 h-6" />
-          </button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0">
-          <div className="flex items-center justify-between p-4 border-b">
-            <SheetTitle className="text-lg font-bold">Menú</SheetTitle>
-          </div>
-          <ul className="flex flex-col">
-            {navLinks.map(({ label, href, icon }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className="flex items-center gap-2 px-4 py-3 hover:bg-muted text-sm"
-                >
-                  {icon}
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </SheetContent>
-      </Sheet>
+      <LeftMenu />
 
       {/* Center logo */}
       <Link
         href="/"
-        className="text-xl font-bold text-primary absolute left-1/2 transform -translate-x-1/2"
+        className="flex items-center gap-2 text-xl font-bold text-primary absolute left-1/2 transform -translate-x-1/2"
       >
-        {APP_NAME} {LOGO_EMOJI}
+        <Logo />
+        {APP_NAME}
       </Link>
 
       {/* Right controls */}
