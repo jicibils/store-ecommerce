@@ -1,4 +1,4 @@
-// /src/app/admin/products/page.tsx
+// src/app/admin/products/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,6 +15,9 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filtered, setFiltered] = useState<Product[]>([]);
   const [search, setSearch] = useState("");
+  const [filterState, setFilterState] = useState<"all" | "active" | "inactive">(
+    "all"
+  );
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -36,11 +39,35 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     const lower = search.toLowerCase();
-    setFiltered(
-      products.filter((p: Product) => p.name.toLowerCase().includes(lower))
+    let result = products.filter((p: Product) =>
+      p.name.toLowerCase().includes(lower)
     );
+
+    if (filterState === "active") result = result.filter((p) => p.is_active);
+    if (filterState === "inactive") result = result.filter((p) => !p.is_active);
+
+    setFiltered(result);
     setPage(1);
-  }, [search, products]);
+  }, [search, products, filterState]);
+
+  const handleToggleActive = async (product: Product) => {
+    const { error } = await supabase
+      .from("products")
+      .update({ is_active: !product.is_active })
+      .eq("id", product.id);
+
+    if (error) toast.error("Error al cambiar estado");
+    else {
+      toast.success(
+        `Producto ${!product.is_active ? "activado" : "desactivado"}`
+      );
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? { ...p, is_active: !product.is_active } : p
+        )
+      );
+    }
+  };
 
   const current = filtered.slice((page - 1) * perPage, page * perPage);
   const totalPages = Math.ceil(filtered.length / perPage);
@@ -49,13 +76,33 @@ export default function AdminProductsPage() {
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Lista de productos</h1>
 
-      <input
-        type="text"
-        placeholder="Buscar por nombre..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="mb-4 p-2 border w-full"
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="Buscar por nombre..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="p-2 border w-full sm:w-1/2"
+        />
+
+        <div className="flex gap-2">
+          {(["all", "active", "inactive"] as const).map((state) => (
+            <button
+              key={state}
+              onClick={() => setFilterState(state)}
+              className={`px-3 py-1 text-sm border rounded-full transition ${
+                filterState === state
+                  ? "bg-black text-white"
+                  : "bg-muted text-foreground"
+              }`}
+            >
+              {state === "all" && "Todos"}
+              {state === "active" && "Activos"}
+              {state === "inactive" && "Inactivos"}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <ul>
         {current.map((p: Product) => (
@@ -71,6 +118,8 @@ export default function AdminProductsPage() {
                     alt={p.name}
                     fill
                     className="object-cover"
+                    placeholder="blur"
+                    blurDataURL="/placeholder.png"
                   />
                 )}
               </div>
@@ -83,7 +132,7 @@ export default function AdminProductsPage() {
                       activo
                     </span>
                   ) : (
-                    <span className="text-muted-foreground text-xs font-normal">
+                    <span className="text-red-500 text-xs font-normal">
                       inactivo
                     </span>
                   )}
@@ -104,7 +153,13 @@ export default function AdminProductsPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={() => handleToggleActive(p)}
+                className="text-xs px-2 py-1 border rounded-full bg-muted text-foreground hover:bg-muted/80 transition cursor-pointer"
+              >
+                {p.is_active ? "Desactivar" : "Activar"}
+              </button>
               <button
                 onClick={() => router.push(`/admin/product?id=${p.id}`)}
                 className="text-blue-600 hover:underline"
@@ -139,7 +194,7 @@ export default function AdminProductsPage() {
         <button
           disabled={page === 1}
           onClick={() => setPage((p) => p - 1)}
-          className="px-4 py-1 border rounded disabled:opacity-50"
+          className="px-4 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           ← Anterior
         </button>
@@ -149,9 +204,9 @@ export default function AdminProductsPage() {
         </span>
 
         <button
-          disabled={page === totalPages}
+          disabled={current.length < perPage}
           onClick={() => setPage((p) => p + 1)}
-          className="px-4 py-1 border rounded disabled:opacity-50"
+          className="px-4 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           Siguiente →
         </button>
