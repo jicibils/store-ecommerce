@@ -1,6 +1,7 @@
 // src/app/admin/login/page.tsx
 "use client";
 
+import Logo from "@/components/Logo";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -34,8 +35,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-20 p-4">
-      <h1 className="text-xl font-bold mb-4">Ingresar al panel</h1>
+    <div className="max-w-sm mx-auto mt-20 bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-lg border border-muted">
+      <div className="max-w-sm mx-auto p-4 text-center">
+        <div className="flex justify-center mb-2">
+          <Logo size={180} />
+        </div>
+        <h1 className="text-2xl font-bold mt-4 mb-8">Ingresar al panel</h1>
+      </div>
       <form onSubmit={handleLogin} className="space-y-4">
         <input
           type="email"
