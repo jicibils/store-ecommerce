@@ -1,38 +1,36 @@
+// src/components/ProductDetailsSheet.tsx
 "use client";
 
-import { useState } from "react";
 import { Product } from "@/types/Product";
-import { CartItem, useCart } from "@/contexts/CartContext";
-import { toast } from "sonner";
-import Image from "next/image";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
+import Image from "next/image";
 import capitalize from "lodash.capitalize";
+import { useCart } from "@/contexts/CartContext";
 
-export default function ProductDetailsSheet({ product }: { product: Product }) {
-  const { addToCart } = useCart();
-  const [quantity, setQuantity] = useState(1);
+export default function ProductDetailsSheet({
+  product,
+  open,
+  onOpenChange,
+}: {
+  product: Product;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { cart } = useCart();
+  const cartItem = cart.find((item) => item.id === product.id);
+  const quantity = cartItem?.quantity ?? 0;
 
-  const handleAddToCart = () => {
-    addToCart({ ...product, quantity } as CartItem);
-    toast.success(`${product.name} x${quantity} agregado al carrito`);
-  };
-
-  const isOverStock = product.stock !== undefined && quantity > product.stock;
+  const discountedPrice = product.discount
+    ? Math.round(product.price * (1 - product.discount / 100))
+    : product.price;
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <button className="w-full bg-muted hover:bg-muted/70 border text-foreground px-4 py-2 rounded text-sm font-medium transition cursor-pointer focus:ring-2 focus:ring-ring">
-          Ver detalles
-        </button>
-      </SheetTrigger>
-
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
         className="w-full sm:max-w-md flex flex-col max-h-screen overflow-y-auto p-6"
@@ -51,7 +49,14 @@ export default function ProductDetailsSheet({ product }: { product: Product }) {
                 alt={product.name}
                 fill
                 className="object-cover"
+                placeholder="blur"
+                blurDataURL="/placeholder.png"
               />
+              {!!product.discount && product.discount > 0 && (
+                <div className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded shadow z-10">
+                  {product.discount}% OFF
+                </div>
+              )}
             </div>
           )}
 
@@ -67,51 +72,34 @@ export default function ProductDetailsSheet({ product }: { product: Product }) {
           )}
 
           {product.description && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground whitespace-pre-line">
               {product.description}
             </p>
           )}
 
-          <p className="text-md font-semibold">
-            Precio: ${product.price.toLocaleString()}{" "}
-            <span className="text-sm text-muted-foreground">
+          <div className="text-md font-semibold">
+            Precio: ${discountedPrice.toLocaleString()}
+            {!!product.discount && product.discount > 0 && (
+              <span className="ml-2 text-sm line-through text-muted-foreground">
+                ${product.price.toLocaleString()}
+              </span>
+            )}
+            <div className="text-sm text-muted-foreground">
               por {product.unit}
-            </span>
-          </p>
-
-          <div className="flex items-center gap-2">
-            <label htmlFor="quantity" className="text-sm font-medium">
-              Cantidad:
-            </label>
-            <input
-              id="quantity"
-              type="number"
-              min={1}
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="w-20 border rounded px-2 py-1"
-            />
+            </div>
           </div>
 
-          {isOverStock && (
-            <p className="text-sm text-red-600">
-              Solo hay {product.stock} unidades disponibles
-            </p>
-          )}
-        </div>
+          <p className="text-sm text-muted-foreground">
+            Stock disponible: {product.stock}
+          </p>
 
-        <button
-          onClick={handleAddToCart}
-          disabled={isOverStock}
-          className={`mt-6 py-2 px-4 rounded-md text-sm font-medium transition focus:outline-none focus:ring-2 w-full
-            ${
-              isOverStock
-                ? "bg-gray-400 text-white cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
-            }`}
-        >
-          Agregar al carrito
-        </button>
+          <p className="text-sm">
+            Ya agregaste:{" "}
+            <span className="font-semibold">
+              {quantity} {quantity === 1 ? "producto" : "productos"}
+            </span>
+          </p>
+        </div>
       </SheetContent>
     </Sheet>
   );
