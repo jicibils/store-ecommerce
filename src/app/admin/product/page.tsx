@@ -24,6 +24,15 @@ export default function ProductPage() {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [units, setUnits] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchUnits = async () => {
+      const { data, error } = await supabase.from("units").select("label");
+      if (!error && data) setUnits(data.map((u) => u.label));
+    };
+    fetchUnits();
+  }, []);
 
   useEffect(() => {
     if (productId) {
@@ -165,11 +174,16 @@ export default function ProductPage() {
             name="unit"
             value={form.unit}
             onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
+            className="w-full border p-2 rounded"
           >
-            <option value="kg">kg</option>
-            <option value="½kg">½ kg</option>
-            <option value="unidad">unidad</option>
+            <option value="" disabled hidden>
+              Seleccioná una unidad
+            </option>
+            {units.map((u) => (
+              <option key={u} value={u}>
+                {u}
+              </option>
+            ))}
           </select>
         </label>
         <label className="block">
@@ -199,6 +213,7 @@ export default function ProductPage() {
             onChange={handleChange}
             className="w-full border p-2 rounded"
           >
+            <option value=""></option>
             <option value="frutas">Frutas</option>
             <option value="verduras">Verduras</option>
             <option value="market">Market</option>

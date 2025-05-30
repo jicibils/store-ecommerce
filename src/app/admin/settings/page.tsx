@@ -1,3 +1,4 @@
+// src/app/admin/settings/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,6 +10,8 @@ export default function AdminSettingsPage() {
     admin_email: "",
     admin_phone: "",
   });
+  const [units, setUnits] = useState<string[]>([]);
+  const [newUnit, setNewUnit] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -22,7 +25,14 @@ export default function AdminSettingsPage() {
         });
       }
     };
+
+    const fetchUnits = async () => {
+      const { data } = await supabase.from("units").select("label");
+      if (data) setUnits(data.map((u) => u.label));
+    };
+
     fetchSettings();
+    fetchUnits();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +45,7 @@ export default function AdminSettingsPage() {
     setMessage("");
 
     const { error } = await supabase.from("settings").upsert({
-      id: "main", // clave fija para 1 solo registro
+      id: "main",
       admin_email: form.admin_email,
       admin_phone: form.admin_phone,
     });
@@ -48,9 +58,25 @@ export default function AdminSettingsPage() {
     setLoading(false);
   };
 
+  const handleAddUnit = async () => {
+    if (!newUnit.trim()) return;
+    const { error } = await supabase.from("units").insert({ label: newUnit });
+    if (!error) {
+      setUnits((prev) => [...prev, newUnit]);
+      setNewUnit("");
+    }
+  };
+
+  const handleDeleteUnit = async (label: string) => {
+    const { error } = await supabase.from("units").delete().eq("label", label);
+    if (!error) {
+      setUnits((prev) => prev.filter((u) => u !== label));
+    }
+  };
+
   return (
     <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Configuración de contacto</h1>
+      <h1 className="text-2xl font-bold mb-4">Configuración general</h1>
 
       <input
         name="admin_email"
@@ -75,6 +101,38 @@ export default function AdminSettingsPage() {
       </Button>
 
       {message && <p className="mt-4">{message}</p>}
+
+      <hr className="my-6" />
+
+      <h2 className="text-xl font-bold mb-2">Unidades disponibles</h2>
+
+      <div className="flex gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="Nueva unidad (ej: docena)"
+          value={newUnit}
+          onChange={(e) => setNewUnit(e.target.value)}
+          className="flex-1 border p-2 rounded"
+        />
+        <Button onClick={handleAddUnit}>Agregar</Button>
+      </div>
+
+      <ul className="space-y-2">
+        {units.map((unit) => (
+          <li
+            key={unit}
+            className="flex justify-between items-center border p-2 rounded"
+          >
+            <span>{unit}</span>
+            <button
+              onClick={() => handleDeleteUnit(unit)}
+              className="text-red-600 text-sm hover:underline"
+            >
+              Eliminar
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
