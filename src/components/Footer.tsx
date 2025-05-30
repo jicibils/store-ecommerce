@@ -2,14 +2,15 @@
 
 import {
   APP_NAME,
-  LOGO_EMOJI,
   CONTACT_EMAIL,
   CONTACT_PHONE,
   CONTACT_ADDRESS,
   SOCIAL_LINKS,
+  WORKING_HOURS,
 } from "@/lib/constants";
 import Link from "next/link";
 import { Instagram, Facebook, Twitter } from "lucide-react";
+import Logo from "./Logo";
 
 export default function Footer() {
   return (
@@ -17,7 +18,8 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6 py-8 grid gap-4 md:grid-cols-3 text-sm">
         <div>
           <h2 className="text-lg font-bold mb-2">
-            {APP_NAME} {LOGO_EMOJI}
+            <Logo />
+            {APP_NAME}
           </h2>
           <p className="text-muted-foreground">{CONTACT_ADDRESS}</p>
         </div>
@@ -42,6 +44,10 @@ export default function Footer() {
             >
               {CONTACT_PHONE}
             </Link>
+          </p>
+          <p>
+            Horarios:{" "}
+            <span className="text-muted-foreground">{WORKING_HOURS}</span>
           </p>
         </div>
 
