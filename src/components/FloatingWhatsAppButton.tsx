@@ -16,7 +16,7 @@ export default function FloatingWhatsAppButton() {
       )}`}
       target="_blank"
       aria-label="Chatear por WhatsApp"
-      className="fixed bottom-5 right-5 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all cursor-pointer z-50"
+      className="fixed bottom-15 right-4 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg transition-all cursor-pointer z-50"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
