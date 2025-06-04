@@ -1,7 +1,11 @@
 // src/components/LeftMenu.tsx
 "use client";
 import Link from "next/link";
-import { Home, LayoutDashboard, Menu } from "lucide-react";
+import {
+  Home,
+  // LayoutDashboard,
+  Menu,
+} from "lucide-react";
 import {
   Sheet,
   SheetTitle,
@@ -13,11 +17,11 @@ import Logo from "./Logo";
 export default function LeftMenu() {
   const navLinks = [
     { label: "Inicio", href: "/", icon: <Home className="w-5 h-5" /> },
-    {
-      label: "Admin",
-      href: "/admin",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-    },
+    // {
+    //   label: "Admin",
+    //   href: "/admin",
+    //   icon: <LayoutDashboard className="w-5 h-5" />,
+    // },
   ];
 
   return (
