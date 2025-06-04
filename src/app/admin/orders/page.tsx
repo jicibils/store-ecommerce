@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { ORDER_STATUS, ORDER_STATUSES, STATUS_COLORS } from "@/lib/constants";
@@ -217,6 +218,17 @@ export default function AdminOrdersPage() {
                       </li>
                     ))}
                   </ul>
+                  <td className="pt-5">
+                    <Link href={`/order/${order.id}`}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="cursor-pointer"
+                      >
+                        Ver orden
+                      </Button>
+                    </Link>
+                  </td>
                 </div>
                 {order.status === "cancelled" && (
                   <div className="mt-2 p-4 bg-red-100 text-red-800 rounded">
