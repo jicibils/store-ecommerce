@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
     },
     {
       icon: <ChartArea className="w-6 h-6" />,
-      label: "Reportes (Próximamente)",
+      label: "Reportes",
       href: "/admin/analytics",
     },
     {
