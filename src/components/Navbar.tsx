@@ -8,6 +8,7 @@ import { APP_NAME } from "@/lib/constants";
 
 import Logo from "./Logo";
 import LeftMenu from "./LeftMenu";
+import AdminBackButton from "./AdminBackButton";
 
 export default function Navbar() {
   const { cart } = useCart();
@@ -30,6 +31,7 @@ export default function Navbar() {
     <nav className="w-full px-6 py-3 flex justify-between items-center bg-background border-b border-border sticky top-0 z-50">
       {/* Left menu */}
       <LeftMenu />
+      <AdminBackButton />
 
       {/* Center logo */}
       <Link

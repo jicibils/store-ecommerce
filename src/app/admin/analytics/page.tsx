@@ -134,7 +134,7 @@ export default function AnalyticsPage() {
       <Tabs defaultValue="mensual">
         <TabsList className="mb-4">
           <TabsTrigger value="mensual">📅 Reporte mensual</TabsTrigger>
-          <TabsTrigger value="productos">🥇 Productos más vendidos</TabsTrigger>
+          <TabsTrigger value="productos">🥇 Top Productos</TabsTrigger>
           <TabsTrigger value="pagos">💳 Métodos de pago</TabsTrigger>
           <TabsTrigger value="dias">📆 Días más activos</TabsTrigger>
           <TabsTrigger value="cancelaciones">❗️ Cancelaciones</TabsTrigger>
