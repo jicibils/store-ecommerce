@@ -21,6 +21,7 @@ export default function CheckoutPage() {
   const [form, setForm] = useState({
     name: "",
     address: "",
+    address_details: "",
     email: "",
     phone: "",
     delivery_option: "",
@@ -146,6 +147,7 @@ export default function CheckoutPage() {
           {
             customer_name: form.name,
             address: form.address,
+            address_details: form.address_details,
             phone: form.phone,
             email: form.email,
             delivery_option: form.delivery_option,
@@ -203,7 +205,7 @@ export default function CheckoutPage() {
         </p>
         <Link
           href="/"
-          className="bg-background text-foreground border border-black dark:border-white px-4 py-2 rounded hover:bg-foreground hover:text-background transition"
+          className="bg-background text-foreground border border-black dark:border-white/20 px-4 py-2 rounded hover:bg-foreground hover:text-background transition"
         >
           Volver a la tienda
         </Link>
@@ -219,7 +221,10 @@ export default function CheckoutPage() {
 
         <ul className="space-y-4">
           {cart.map((item) => (
-            <li key={item.id} className="flex items-center gap-4 border-b pb-4">
+            <li
+              key={item.id}
+              className="flex items-center gap-4 border-b dark:border-white/20 pb-4"
+            >
               <div className="w-14 h-14 relative rounded overflow-hidden bg-muted shrink-0">
                 {item.image_url && (
                   <Image
@@ -248,14 +253,14 @@ export default function CheckoutPage() {
                         removeFromCart(item.id);
                       }
                     }}
-                    className="px-2 py-1 rounded border text-sm"
+                    className="px-2 py-1 rounded border dark:border-white/20 text-sm"
                   >
                     ➖
                   </button>
                   <span className="w-6 text-center">{item.quantity}</span>
                   <button
                     onClick={() => addToCart({ ...item, quantity: 1 } as any)}
-                    className="px-2 py-1 rounded border text-sm"
+                    className="px-2 py-1 rounded border dark:border-white/20 text-sm"
                   >
                     ➕
                   </button>
@@ -282,7 +287,7 @@ export default function CheckoutPage() {
           ))}
         </ul>
 
-        <div className="flex justify-between items-center pt-6 border-t">
+        <div className="flex justify-between items-center pt-6 border-t dark:border-white/20">
           <p className="text-lg font-semibold">Total:</p>
           <p className="text-xl font-bold text-primary">
             ${total.toLocaleString()}
@@ -300,13 +305,13 @@ export default function CheckoutPage() {
             type="text"
             placeholder="Nombre completo"
             onChange={handleChange}
-            className="w-full border p-2 rounded"
+            className="w-full border dark:border-white/20 p-2 rounded"
             required
           />
           <select
             name="delivery_option"
             onChange={handleChange}
-            className="w-full border p-2 rounded"
+            className="w-full border dark:border-white/20 p-2 rounded"
             required
           >
             <option value="">¿Cómo recibís?</option>
@@ -314,19 +319,28 @@ export default function CheckoutPage() {
             <option value="retiro">Retiro en el local</option>
           </select>
           {form.delivery_option === "entrega" && (
-            <input
-              name="address"
-              type="text"
-              placeholder="Dirección de entrega"
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            />
+            <>
+              <input
+                name="address"
+                type="text"
+                placeholder="Dirección de entrega"
+                onChange={handleChange}
+                className="w-full border p-2 rounded dark:border-white/20"
+                required
+              />
+              <input
+                name="address_details"
+                type="text"
+                placeholder="Departamento, piso o referencias (opcional)"
+                onChange={handleChange}
+                className="w-full border p-2 rounded dark:border-white/20"
+              />
+            </>
           )}
           <select
             name="confirm_method"
             onChange={handleChange}
-            className="w-full border p-2 rounded"
+            className="w-full border dark:border-white/20 p-2 rounded"
             required
           >
             <option value="">¿Cómo querés recibir la confirmación?</option>
@@ -339,7 +353,7 @@ export default function CheckoutPage() {
             type="email"
             placeholder="Tu email"
             onChange={handleChange}
-            className="w-full border p-2 rounded"
+            className="w-full border dark:border-white/20 p-2 rounded"
             required
           />
           <input
@@ -347,25 +361,24 @@ export default function CheckoutPage() {
             type="tel"
             placeholder="Tu WhatsApp"
             onChange={handleChange}
-            className="w-full border p-2 rounded"
+            className="w-full border dark:border-white/20 p-2 rounded"
             required
           />
 
           <select
             name="payment_method"
             onChange={handleChange}
-            className="w-full border p-2 rounded"
+            className="w-full border  dark:border-white/20 p-2 rounded"
           >
             <option value="">¿Cómo querés pagar?</option>
             <option value="efectivo">Efectivo</option>
             <option value="transferencia">Transferencia</option>
-            <option value="mercado_pago">Mercado Pago</option>
           </select>
 
           <button
             type="submit"
             disabled={loading || cart.length === 0}
-            className={`w-full bg-black border-1 border-white text-white px-4 py-2 hover:bg-white hover:text-black transition ${
+            className={`w-full bg-black border border-black dark:border-white/20 text-white px-4 py-2 hover:bg-white hover:text-black transition ${
               loading || cart.length === 0
                 ? "cursor-not-allowed"
                 : "cursor-pointer"
