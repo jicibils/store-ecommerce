@@ -156,7 +156,7 @@ export default function AdminProductsPage() {
             <div className="flex gap-2 items-center">
               <button
                 onClick={() => handleToggleActive(p)}
-                className="text-xs px-2 py-1 border rounded-full bg-muted text-foreground hover:bg-muted/80 transition cursor-pointer"
+                className="text-xs px-2 py-1 border rounded-full bg-white text-foreground border-gray-300 hover:bg-muted transition cursor-pointer"
               >
                 {p.is_active ? "Desactivar" : "Activar"}
               </button>
