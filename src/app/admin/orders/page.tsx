@@ -50,6 +50,8 @@ export default function AdminOrdersPage() {
   const [paymentFilter, setPaymentFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("");
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(false);
 
@@ -81,7 +83,9 @@ export default function AdminOrdersPage() {
       ? new Date(order.created_at).toDateString() ===
         new Date(dateFilter).toDateString()
       : true;
-    return matchesPayment && matchesDate;
+    const matchesStatus = statusFilter ? order.status === statusFilter : true;
+
+    return matchesPayment && matchesDate && matchesStatus;
   });
 
   const handleExport = () => {
@@ -146,6 +150,24 @@ export default function AdminOrdersPage() {
               onChange={(e) => setDateFilter(e.target.value)}
               className="border px-3 py-2 rounded w-full"
             />
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">
+              Filtrar por estado:
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border px-3 py-2 rounded w-full"
+            >
+              <option value="">Todos</option>
+              {ORDER_STATUSES.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -218,7 +240,7 @@ export default function AdminOrdersPage() {
                       </li>
                     ))}
                   </ul>
-                  <td className="pt-5">
+                  <div className="pt-5">
                     <Link href={`/order/${order.id}`}>
                       <Button
                         variant="outline"
@@ -228,7 +250,7 @@ export default function AdminOrdersPage() {
                         Ver orden
                       </Button>
                     </Link>
-                  </td>
+                  </div>
                 </div>
                 {order.status === "cancelled" && (
                   <div className="mt-2 p-4 bg-red-100 text-red-800 rounded">
