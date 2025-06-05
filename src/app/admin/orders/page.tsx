@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import { Button } from "@/components/ui/button";
-import { ORDER_STATUS, ORDER_STATUSES, STATUS_COLORS } from "@/lib/constants";
-import { saveAs } from "file-saver";
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { saveAs } from "file-saver";
 import { toast } from "sonner";
+import { ORDER_STATUS, ORDER_STATUSES, STATUS_COLORS } from "@/lib/constants";
+import { supabase } from "@/lib/supabase";
+import { sendOrderConfirmationEmail } from "@/lib/sendOrderConfirmationEmail";
+import { Button } from "@/components/ui/button";
 import CancelOrderDialog from "@/components/CancelOrderDialog";
 
 function generateCSV(orders: any[], orderItems: any[]) {
@@ -250,6 +251,33 @@ export default function AdminOrdersPage() {
                         Ver orden
                       </Button>
                     </Link>
+                    {order.confirm_method === "email" && order.email && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="mt-2 ml-2 cursor-pointer"
+                        onClick={async () => {
+                          const toastId = toast.loading("Enviando email...");
+                          try {
+                            await sendOrderConfirmationEmail({
+                              name: order.customer_name,
+                              email: order.email,
+                              orderUrl: `${window.location.origin}/order/${order.id}`,
+                            });
+                            toast.success("📩 Email reenviado correctamente", {
+                              id: toastId,
+                            });
+                          } catch (err) {
+                            toast.error("❌ No se pudo reenviar el email", {
+                              id: toastId,
+                            });
+                            console.log(err);
+                          }
+                        }}
+                      >
+                        Reenviar email
+                      </Button>
+                    )}
                   </div>
                 </div>
                 {order.status === "cancelled" && (
