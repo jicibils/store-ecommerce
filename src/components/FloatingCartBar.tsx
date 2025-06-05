@@ -15,15 +15,21 @@ export default function FloatingCartBar() {
   const items = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="fixed bottom-0 sm:bottom-4 w-full sm:w-auto sm:left-1/2 sm:transform sm:-translate-x-1/2 z-50 bg-muted text-foreground px-4 sm:px-6 py-3 sm:rounded-full shadow-lg ring-1 ring-border flex items-center justify-between sm:gap-4">
-      <span>
+    <div
+      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 
+  bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl 
+  border border-gray-300 dark:border-white/10 flex items-center gap-4 max-w-fit"
+    >
+      <span className="text-sm font-medium text-black dark:text-black">
         🛒 {items} producto{items > 1 ? "s" : ""} – ${total.toLocaleString()}
       </span>
+
       <Link
         href="/checkout"
-        className="bg-white text-black px-3 py-1 rounded-full text-sm font-medium hover:bg-gray-100 transition"
+        className="bg-green-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold 
+      hover:bg-green-700 transition whitespace-nowrap"
       >
-        Ir al carrito
+        Ir al carrito →
       </Link>
     </div>
   );
