@@ -9,6 +9,7 @@ interface Banner {
   message: string;
   type?: "info" | "warning" | "success";
   minAmount?: number;
+  subMessage: string;
 }
 
 export default function Banner({ total = 0 }: { total?: number }) {
@@ -25,6 +26,8 @@ export default function Banner({ total = 0 }: { total?: number }) {
           "🚚 Envío gratis en compras mayores a $8000. Aprovechá esta promo!",
         type: "success",
         minAmount: 8000,
+        subMessage:
+          "* Si el envío supera los 4km, puede tener cargos extras. Consultanos.",
       },
       // Más banners futuros acá
     ];
@@ -57,6 +60,7 @@ export default function Banner({ total = 0 }: { total?: number }) {
           `}
         >
           {b.message}
+          <p className="text-sm text-muted-foreground mt-1">{b.subMessage}</p>
         </div>
       ))}
     </div>
