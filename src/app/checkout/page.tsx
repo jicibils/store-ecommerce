@@ -6,11 +6,11 @@ import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import emailjs from "emailjs-com";
 import { ShoppingCart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { CartItem, useCart } from "@/contexts/CartContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { sendOrderConfirmationEmail } from "@/lib/sendOrderConfirmationEmail";
 
 type Settings = {
   admin_email: string;
@@ -59,29 +59,6 @@ export default function CheckoutPage() {
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const sendOrderEmail = async (data: any) => {
-    try {
-      await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-        data,
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-      );
-      console.log("✅ Email enviado");
-    } catch (err) {
-      console.error("❌ Error al enviar email", err);
-    }
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const openWhatsAppMessage = async (data: any) => {
-    const mensaje = encodeURIComponent(
-      `📦 Nuevo pedido de ${data.name}\nTotal: $${data.total}\nPago: ${data.payment_method}`
-    );
-    window.open(`https://wa.me/${data.number}?text=${mensaje}`, "_blank");
   };
 
   async function validateStock(cart: CartItem[]) {
@@ -180,10 +157,13 @@ export default function CheckoutPage() {
       setMessage("✅ Pedido realizado con éxito");
       clearCart();
 
-      // Si querés habilitar los mensajes:
-      // if (form.confirm_method === "email" || form.confirm_method === "ambos") await sendOrderEmail({...})
-      // if (form.confirm_method === "whatsapp" || form.confirm_method === "ambos") openWhatsAppMessage({...})
-      // openWhatsAppMessage({...}) // admin
+      if (form.confirm_method === "email") {
+        await sendOrderConfirmationEmail({
+          name: order.customer_name,
+          email: order.email,
+          orderUrl: `${window.location.origin}/order/${order.id}`,
+        });
+      }
 
       router.push(`/thanks?orderId=${order.id}`);
     } catch (err: any) {
@@ -345,8 +325,8 @@ export default function CheckoutPage() {
           >
             <option value="">¿Cómo querés recibir la confirmación?</option>
             <option value="email">Por Email</option>
-            <option value="whatsapp">Por WhatsApp</option>
-            <option value="ambos">Ambos</option>
+            {/* <option value="whatsapp">Por WhatsApp</option>
+            <option value="ambos">Ambos</option> */}
           </select>
           <input
             name="email"
