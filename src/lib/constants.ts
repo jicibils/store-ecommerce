@@ -30,6 +30,13 @@ export enum ORDER_STATUS {
   ON_THE_WAY = "on_the_way",
 }
 
+export const FINAL_STATUSES = [
+  ORDER_STATUS.PAID,
+  ORDER_STATUS.DELIVERED,
+  ORDER_STATUS.CANCELLED,
+  ORDER_STATUS.REFUNDED,
+];
+
 export const ORDER_STATUS_LABELS: Record<ORDER_STATUS, string> = {
   [ORDER_STATUS.PENDING]: "Pendiente",
   [ORDER_STATUS.CONFIRMED]: "Confirmado",

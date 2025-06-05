@@ -5,11 +5,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { saveAs } from "file-saver";
 import { toast } from "sonner";
-import { ORDER_STATUS, ORDER_STATUSES, STATUS_COLORS } from "@/lib/constants";
+import {
+  FINAL_STATUSES,
+  ORDER_STATUS,
+  ORDER_STATUSES,
+  STATUS_COLORS,
+} from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { sendOrderConfirmationEmail } from "@/lib/sendOrderConfirmationEmail";
 import { Button } from "@/components/ui/button";
 import CancelOrderDialog from "@/components/CancelOrderDialog";
+import AuditReasonModal from "@/components/AuditReasonModal";
 
 function generateCSV(orders: any[], orderItems: any[]) {
   if (!orders.length || !orderItems.length) {
@@ -52,6 +58,12 @@ export default function AdminOrdersPage() {
   const [dateFilter, setDateFilter] = useState("");
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+  const [showAuditModal, setShowAuditModal] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState<{
+    orderId: string;
+    oldStatus: string;
+    newStatus: string;
+  } | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(false);
@@ -102,6 +114,28 @@ export default function AdminOrdersPage() {
   };
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
+    const order = orders.find((o) => o.id === orderId);
+    if (!order) return;
+
+    const oldStatus = order.status;
+
+    if (FINAL_STATUSES.includes(oldStatus) && oldStatus !== newStatus) {
+      setPendingStatusChange({ orderId, oldStatus, newStatus });
+      setShowAuditModal(true);
+      return;
+    }
+
+    await updateStatus(orderId, newStatus);
+  };
+
+  const updateStatus = async (
+    orderId: string,
+    newStatus: string,
+    reason?: string
+  ) => {
+    const order = orders.find((o) => o.id === orderId);
+    if (!order) return;
+
     const { error } = await supabase
       .from("orders")
       .update({ status: newStatus })
@@ -109,12 +143,25 @@ export default function AdminOrdersPage() {
 
     if (error) {
       toast.error("Error al actualizar estado");
-    } else {
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-      );
-      toast.success("Estado actualizado");
+      return;
     }
+
+    // Guardar auditoría si hay motivo
+    if (reason) {
+      await supabase.from("order_status_audit").insert({
+        order_id: orderId,
+        old_status: order.status,
+        new_status: newStatus,
+        reason,
+        changed_by: "admin",
+      });
+    }
+
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+    );
+
+    toast.success("Estado actualizado");
   };
 
   return (
@@ -342,6 +389,26 @@ export default function AdminOrdersPage() {
           <p>No hay pedidos.</p>
         )}
       </div>
+      <AuditReasonModal
+        open={showAuditModal}
+        oldStatus={pendingStatusChange?.oldStatus || ""}
+        newStatus={pendingStatusChange?.newStatus || ""}
+        onClose={() => {
+          setShowAuditModal(false);
+          setPendingStatusChange(null);
+        }}
+        onConfirm={async (reason) => {
+          if (pendingStatusChange) {
+            await updateStatus(
+              pendingStatusChange.orderId,
+              pendingStatusChange.newStatus,
+              reason
+            );
+            setShowAuditModal(false);
+            setPendingStatusChange(null);
+          }
+        }}
+      />
     </div>
   );
 }
