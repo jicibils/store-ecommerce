@@ -18,6 +18,7 @@ export default function AdminProductsPage() {
   const [filterState, setFilterState] = useState<"all" | "active" | "inactive">(
     "all"
   );
+  const [showOutOfStockOnly, setShowOutOfStockOnly] = useState(false);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -45,10 +46,11 @@ export default function AdminProductsPage() {
 
     if (filterState === "active") result = result.filter((p) => p.is_active);
     if (filterState === "inactive") result = result.filter((p) => !p.is_active);
+    if (showOutOfStockOnly) result = result.filter((p) => p.stock === 0); // 🔥
 
     setFiltered(result);
     setPage(1);
-  }, [search, products, filterState]);
+  }, [search, products, filterState, showOutOfStockOnly]);
 
   const handleToggleActive = async (product: Product) => {
     const { error } = await supabase
@@ -84,7 +86,6 @@ export default function AdminProductsPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="p-2 border w-full sm:w-1/2"
         />
-
         <div className="flex gap-2">
           {(["all", "active", "inactive"] as const).map((state) => (
             <button
@@ -101,6 +102,16 @@ export default function AdminProductsPage() {
               {state === "inactive" && "Inactivos"}
             </button>
           ))}
+          <button
+            onClick={() => setShowOutOfStockOnly(!showOutOfStockOnly)}
+            className={`px-3 py-1 text-sm border rounded-full transition ${
+              showOutOfStockOnly
+                ? "bg-black text-white"
+                : "bg-muted text-foreground"
+            }`}
+          >
+            Sin stock
+          </button>
         </div>
       </div>
 
