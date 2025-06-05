@@ -13,6 +13,7 @@ import {
   MessageCircleMore,
 } from "lucide-react";
 import { toast } from "sonner";
+import AdminPendingOrdersBadge from "@/components/AdminPendingOrdersBadge";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -47,6 +48,7 @@ export default function AdminDashboardPage() {
       icon: <ClipboardList className="w-6 h-6" />,
       label: "Ver pedidos",
       href: "/admin/orders",
+      badge: <AdminPendingOrdersBadge />,
     },
     {
       icon: <ChartArea className="w-6 h-6" />,
@@ -79,11 +81,14 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {actions.map((action) => (
-          <Link href={action.href} key={action.href}>
-            <div className="border rounded-lg p-6 hover:bg-accent transition shadow flex items-center gap-4 cursor-pointer">
-              <div className="text-primary">{action.icon}</div>
-              <span className="text-lg font-medium">{action.label}</span>
+        {actions.map(({ icon, label, href, badge }) => (
+          <Link href={href} key={href}>
+            <div className="border rounded-lg p-6 hover:bg-accent transition shadow flex items-center gap-4 cursor-pointer relative">
+              <div className="text-primary">{icon}</div>
+              <span className="text-lg font-medium">{label}</span>
+
+              {/* Badge */}
+              {badge && <div className="absolute top-2 right-2">{badge}</div>}
             </div>
           </Link>
         ))}
