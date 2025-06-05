@@ -26,14 +26,18 @@ export enum ORDER_STATUS {
   CANCELLED = "cancelled",
   DELIVERED = "delivered",
   REFUNDED = "refunded",
+  READY_FOR_PICKUP = "ready_for_pickup",
+  ON_THE_WAY = "on_the_way",
 }
 
 export const ORDER_STATUS_LABELS: Record<ORDER_STATUS, string> = {
   [ORDER_STATUS.PENDING]: "Pendiente",
   [ORDER_STATUS.CONFIRMED]: "Confirmado",
   [ORDER_STATUS.PAID]: "Pagado",
-  [ORDER_STATUS.CANCELLED]: "Cancelado",
+  [ORDER_STATUS.READY_FOR_PICKUP]: "A Retirar",
+  [ORDER_STATUS.ON_THE_WAY]: "En Camino",
   [ORDER_STATUS.DELIVERED]: "Entregado",
+  [ORDER_STATUS.CANCELLED]: "Cancelado",
   [ORDER_STATUS.REFUNDED]: "Devuelto",
 };
 
@@ -46,14 +50,23 @@ export const ORDER_STATUSES = [
     value: ORDER_STATUS.CONFIRMED,
     label: ORDER_STATUS_LABELS[ORDER_STATUS.CONFIRMED],
   },
-  { value: ORDER_STATUS.PAID, label: ORDER_STATUS_LABELS[ORDER_STATUS.PAID] },
   {
-    value: ORDER_STATUS.CANCELLED,
-    label: ORDER_STATUS_LABELS[ORDER_STATUS.CANCELLED],
+    value: ORDER_STATUS.READY_FOR_PICKUP,
+    label: ORDER_STATUS_LABELS[ORDER_STATUS.READY_FOR_PICKUP],
+  },
+  {
+    value: ORDER_STATUS.ON_THE_WAY,
+    label: ORDER_STATUS_LABELS[ORDER_STATUS.ON_THE_WAY],
   },
   {
     value: ORDER_STATUS.DELIVERED,
     label: ORDER_STATUS_LABELS[ORDER_STATUS.DELIVERED],
+  },
+
+  { value: ORDER_STATUS.PAID, label: ORDER_STATUS_LABELS[ORDER_STATUS.PAID] },
+  {
+    value: ORDER_STATUS.CANCELLED,
+    label: ORDER_STATUS_LABELS[ORDER_STATUS.CANCELLED],
   },
   {
     value: ORDER_STATUS.REFUNDED,
@@ -68,4 +81,6 @@ export const STATUS_COLORS: Record<string, string> = {
   cancelled: "bg-red-200 text-red-800",
   delivered: "bg-emerald-200 text-emerald-800",
   refunded: "bg-purple-200 text-purple-800",
+  ready_for_pickup: "bg-orange-200 text-orange-800",
+  on_the_way: "bg-cyan-200 text-cyan-800",
 };
