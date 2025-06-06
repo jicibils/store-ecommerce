@@ -129,7 +129,7 @@ export default function HomePage() {
             {hasMore ? (
               <button
                 onClick={() => fetchProducts()}
-                className="px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm"
+                className="mb-2 px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm cursor-pointer"
               >
                 Cargar más productos
               </button>
