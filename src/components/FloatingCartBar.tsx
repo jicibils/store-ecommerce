@@ -16,18 +16,18 @@ export default function FloatingCartBar() {
 
   return (
     <div
-      className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 
-  bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl 
-  border border-gray-300 dark:border-white/10 flex items-center gap-4 max-w-fit"
+      className="fixed bottom-4 left-4 right-4 z-50 sm:left-1/2 sm:right-auto sm:transform sm:-translate-x-1/2 
+  bg-white/90 dark:bg-black/90 backdrop-blur-md px-6 py-3 rounded-full shadow-xl 
+  border border-gray-300 dark:border-white/10 flex items-center justify-between gap-4"
     >
-      <span className="text-sm font-medium text-black dark:text-black">
+      <span className="text-sm font-medium text-black dark:text-white">
         🛒 {items} producto{items > 1 ? "s" : ""} – ${total.toLocaleString()}
       </span>
 
       <Link
         href="/checkout"
         className="bg-green-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold 
-      hover:bg-green-700 transition whitespace-nowrap"
+    hover:bg-green-700 transition whitespace-nowrap"
       >
         Ir al carrito →
       </Link>

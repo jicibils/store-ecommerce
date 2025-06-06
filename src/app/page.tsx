@@ -37,6 +37,9 @@ export default function HomePage() {
         .order("name", { ascending: true });
 
       if (filter === "offers") queryBuilder = queryBuilder.eq("is_offer", true);
+      else if (filter === "all") {
+        queryBuilder = queryBuilder.eq("is_offer", false);
+      }
 
       if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
       if (category) queryBuilder = queryBuilder.eq("category", category);

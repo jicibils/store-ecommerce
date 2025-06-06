@@ -97,13 +97,16 @@ export default function ProductCard({ product }: { product: Product }) {
       </div>
 
       <div className="p-4 flex flex-col gap-1 flex-1">
-        <h3 className="text-base font-semibold leading-tight flex gap-2 items-center">
-          {capitalize(product.name)}
+        <h3 className="text-base font-semibold leading-tight flex gap-2 items-center flex-wrap min-w-0">
           {product.is_offer && (
-            <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
               🔥 OFERTA
             </span>
           )}
+        </h3>
+
+        <h3 className="text-base font-semibold leading-tight flex gap-2 items-center flex-wrap min-w-0">
+          {capitalize(product.name)}
         </h3>
 
         <div className="text-lg font-bold text-primary leading-tight">
