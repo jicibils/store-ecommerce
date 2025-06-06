@@ -27,7 +27,7 @@ export default function Banner({ total = 0 }: { total?: number }) {
         type: "success",
         minAmount: 8000,
         subMessage:
-          "* Si el envío supera los 4km, puede tener cargos extras. Consultanos.",
+          "* Si el envío supera los 4,5km, puede tener cargos extras. Consultanos.",
       },
       // Más banners futuros acá
     ];
