@@ -19,6 +19,8 @@ export default function AdminProductsPage() {
     "all"
   );
   const [showOutOfStockOnly, setShowOutOfStockOnly] = useState(false);
+  const [showOffersOnly, setShowOffersOnly] = useState(false);
+  const [showDiscountOnly, setShowDiscountOnly] = useState(false);
   const [page, setPage] = useState(1);
   const perPage = 10;
 
@@ -46,11 +48,21 @@ export default function AdminProductsPage() {
 
     if (filterState === "active") result = result.filter((p) => p.is_active);
     if (filterState === "inactive") result = result.filter((p) => !p.is_active);
-    if (showOutOfStockOnly) result = result.filter((p) => p.stock === 0); // 🔥
+    if (showOutOfStockOnly) result = result.filter((p) => p.stock === 0);
+    if (showOffersOnly) result = result.filter((p) => p.is_offer);
+    if (showDiscountOnly)
+      result = result.filter((p) => p.discount && p.discount > 0);
 
     setFiltered(result);
     setPage(1);
-  }, [search, products, filterState, showOutOfStockOnly]);
+  }, [
+    search,
+    products,
+    filterState,
+    showOutOfStockOnly,
+    showOffersOnly,
+    showDiscountOnly,
+  ]);
 
   const handleToggleActive = async (product: Product) => {
     const { error } = await supabase
@@ -91,7 +103,7 @@ export default function AdminProductsPage() {
             <button
               key={state}
               onClick={() => setFilterState(state)}
-              className={`px-3 py-1 text-sm border rounded-full transition ${
+              className={`px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
                 filterState === state
                   ? "bg-black text-white"
                   : "bg-muted text-foreground"
@@ -104,13 +116,34 @@ export default function AdminProductsPage() {
           ))}
           <button
             onClick={() => setShowOutOfStockOnly(!showOutOfStockOnly)}
-            className={`px-3 py-1 text-sm border rounded-full transition ${
+            className={`px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
               showOutOfStockOnly
                 ? "bg-black text-white"
                 : "bg-muted text-foreground"
             }`}
           >
             Sin stock
+          </button>
+          <button
+            onClick={() => setShowOffersOnly(!showOffersOnly)}
+            className={`px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
+              showOffersOnly
+                ? "bg-black text-white"
+                : "bg-muted text-foreground"
+            }`}
+          >
+            Ofertas 🔥
+          </button>
+
+          <button
+            onClick={() => setShowDiscountOnly(!showDiscountOnly)}
+            className={`px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
+              showDiscountOnly
+                ? "bg-black text-white"
+                : "bg-muted text-foreground"
+            }`}
+          >
+            Con descuento %
           </button>
         </div>
       </div>
