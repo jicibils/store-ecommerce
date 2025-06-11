@@ -5,17 +5,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { saveAs } from "file-saver";
 import { toast } from "sonner";
-import {
-  FINAL_STATUSES,
-  ORDER_STATUS,
-  ORDER_STATUSES,
-  STATUS_COLORS,
-} from "@/lib/constants";
+import { FINAL_STATUSES, ORDER_STATUSES, STATUS_COLORS } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 import { sendOrderConfirmationEmail } from "@/lib/sendOrderConfirmationEmail";
 import { Button } from "@/components/ui/button";
 import CancelOrderDialog from "@/components/CancelOrderDialog";
 import AuditReasonModal from "@/components/AuditReasonModal";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
+import { normalizePhone } from "@/lib/utils";
 
 function generateCSV(orders: any[], orderItems: any[]) {
   if (!orders.length || !orderItems.length) {
@@ -220,40 +217,63 @@ export default function AdminOrdersPage() {
         </div>
 
         {filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => {
-            const items = orderItems?.filter((i) => i.order_id === order.id);
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filteredOrders.map((order) => {
+              const shortId = order.id.slice(0, 8);
+              const orderUrl = `${window.location.origin}/order/${order.id}`;
+              const rawMessage = `Hola ${order.customer_name}, tu Pedido #${shortId} 📦 está siendo preparado. Podés ver el detalle en: ${orderUrl} ¡Gracias por tu compra! 🙌🥑🍎`;
+              const message = encodeURIComponent(rawMessage.normalize("NFC"));
+              const cancelMsg = encodeURIComponent(
+                `Hola ${
+                  order.customer_name
+                }, lamentamos informarte que tu Pedido #${shortId} 📦 fue cancelado. Motivo: ${
+                  order.cancellation_reason || "no especificado"
+                }. Si tenés dudas podés escribirnos. Detalle aquí: ${orderUrl}`
+              );
+              const phone = normalizePhone(order.phone);
 
-            return (
-              <div key={order.id} className="mb-6 border rounded-lg p-4 shadow">
-                <div className="mb-2 flex justify-between items-start">
-                  <div>
-                    <p>
-                      <strong>Cliente:</strong> {order.customer_name}
-                    </p>
-                    <div>
-                      <p>
-                        <strong>{order.address}</strong>
+              return (
+                <div
+                  key={order.id}
+                  className="border rounded-lg p-0 shadow-md bg-white flex flex-col justify-between h-full"
+                >
+                  {/* HEADER */}
+                  <div className="bg-muted px-4 py-3 flex justify-between items-start border-b">
+                    <div className="text-sm space-y-1">
+                      <Link
+                        href={`/order/${order.id}`}
+                        target="_blank"
+                        className="font-semibold text-base flex items-center gap-1 text-primary cursor-pointer"
+                      >
+                        Pedido #{shortId} 📦
+                      </Link>
+                      <p className="font-semibold text-sm">
+                        {order.customer_name}
                       </p>
+                      <p className="text-muted-foreground">{order.address}</p>
                       {order.address_details && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-xs">
                           {order.address_details}
                         </p>
                       )}
-                    </div>{" "}
-                    <p>
-                      <strong>Pago:</strong> {order.payment_method}
-                    </p>
-                    <p>
-                      <strong>Total:</strong> ${order.total.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      {new Date(order.created_at).toLocaleString()}
-                    </p>
-                  </div>
+                      <div className="flex items-center gap-1 text-green-700 text-xs">
+                        <WhatsAppIcon className="w-4 h-4" />
+                        <a
+                          href={`https://api.whatsapp.com/send?phone=${phone}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline cursor-pointer"
+                        >
+                          {order.phone}
+                        </a>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        💳 {order.payment_method}
+                      </p>
+                    </div>
 
-                  <div>
                     <span
-                      className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                      className={`text-xs px-2 py-1 rounded-full font-semibold h-fit whitespace-nowrap ${
                         STATUS_COLORS[order.status]
                       }`}
                     >
@@ -262,129 +282,171 @@ export default function AdminOrdersPage() {
                           ?.label
                       }
                     </span>
-                    <select
-                      className="mt-2 block text-sm border px-2 py-1 rounded"
-                      value={order.status}
-                      onChange={(e) =>
-                        handleStatusChange(order.id, e.target.value)
-                      }
-                    >
-                      {ORDER_STATUSES.map((s) => (
-                        <option key={s.value} value={s.value}>
-                          {s.label}
-                        </option>
-                      ))}
-                    </select>
                   </div>
-                </div>
 
-                <div className="border-t pt-2 mt-2">
-                  <p className="font-semibold mb-2">Productos:</p>
-                  <ul className="pl-4 list-disc space-y-1">
-                    {items?.map((item) => (
-                      <li key={item.id}>
-                        {item.product?.name} x{item.quantity} – $
-                        {item.price.toLocaleString()}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="pt-5">
-                    <Link href={`/order/${order.id}`}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="cursor-pointer"
+                  {/* PRODUCTOS */}
+                  <div className="overflow-y-auto max-h-44 p-4">
+                    <ul className="text-sm space-y-2">
+                      {orderItems
+                        .filter((i) => i.order_id === order.id)
+                        .map((item) => (
+                          <li key={item.id}>
+                            <div className="flex justify-between font-medium">
+                              <span>{item.product?.name}</span>
+                              <span>
+                                ${(item.price * item.quantity).toLocaleString()}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {item.quantity}{" "}
+                              {item.product?.unit_type || "unidad"} – $
+                              {item.price} c/u
+                            </p>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+
+                  {/* FOOTER */}
+                  <div className="border-t px-4 py-3 text-sm space-y-2">
+                    <p className="font-bold text-lg text-green-700">
+                      Total: ${order.total.toLocaleString()}
+                    </p>
+
+                    <div className="flex justify-between items-center gap-2">
+                      <select
+                        value={order.status}
+                        onChange={(e) =>
+                          handleStatusChange(order.id, e.target.value)
+                        }
+                        className="text-sm border rounded px-2 py-1 cursor-pointer"
                       >
-                        Ver orden
-                      </Button>
-                    </Link>
-                    {order.confirm_method === "email" && order.email && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="mt-2 ml-2 cursor-pointer"
-                        onClick={async () => {
-                          const toastId = toast.loading("Enviando email...");
-                          try {
-                            await sendOrderConfirmationEmail({
-                              name: order.customer_name,
-                              email: order.email,
-                              orderUrl: `${window.location.origin}/order/${order.id}`,
-                            });
-                            toast.success("📩 Email reenviado correctamente", {
-                              id: toastId,
-                            });
-                          } catch (err) {
-                            toast.error("❌ No se pudo reenviar el email", {
-                              id: toastId,
-                            });
-                            console.log(err);
+                        {ORDER_STATUSES.map((s) => (
+                          <option key={s.value} value={s.value}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+
+                      {order.status === "confirmed" && (
+                        <a
+                          href={`https://api.whatsapp.com/send?phone=${phone}&text=${message}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-green-600 text-xs underline whitespace-nowrap cursor-pointer"
+                        >
+                          <WhatsAppIcon className="w-4 h-4" /> Enviar
+                          confirmación
+                        </a>
+                      )}
+
+                      {order.status === "cancelled" && (
+                        <a
+                          href={`https://api.whatsapp.com/send?phone=${phone}&text=${cancelMsg}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-red-600 text-xs underline whitespace-nowrap cursor-pointer"
+                        >
+                          <WhatsAppIcon className="w-4 h-4" /> Enviar
+                          cancelación
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      {!FINAL_STATUSES.includes(order.status) && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="cursor-pointer"
+                          onClick={() =>
+                            setPendingStatusChange({
+                              orderId: order.id,
+                              oldStatus: order.status,
+                              newStatus: "cancelled",
+                            }) || setShowCancelDialog(true)
                           }
-                        }}
-                      >
-                        Reenviar email
-                      </Button>
-                    )}
+                        >
+                          Cancelar pedido
+                        </Button>
+                      )}
+
+                      {order.confirm_method === "email" && order.email && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="cursor-pointer"
+                          onClick={async () => {
+                            const toastId = toast.loading("Enviando email...");
+                            try {
+                              await sendOrderConfirmationEmail({
+                                name: order.customer_name,
+                                email: order.email,
+                                orderUrl: orderUrl,
+                              });
+                              toast.success(
+                                "📩 Email reenviado correctamente",
+                                { id: toastId }
+                              );
+                            } catch (err) {
+                              toast.error("❌ No se pudo reenviar el email", {
+                                id: toastId,
+                              });
+                              console.log(err);
+                            }
+                          }}
+                        >
+                          Reenviar email
+                        </Button>
+                      )}
+                    </div>
+
+                    <p className="text-muted-foreground text-xs pt-2">
+                      Pedido creado el{" "}
+                      {new Date(order.created_at).toLocaleString()}
+                    </p>
+
+                    <CancelOrderDialog
+                      open={showCancelDialog}
+                      onClose={() => {
+                        setShowCancelDialog(false);
+                        setPendingStatusChange(null);
+                      }}
+                      onConfirm={async (reason) => {
+                        if (!pendingStatusChange) return;
+                        const toastId = toast.loading("Cancelando pedido...");
+                        setLoading(true);
+
+                        const { error } = await supabase
+                          .from("orders")
+                          .update({
+                            status: pendingStatusChange.newStatus,
+                            cancellation_reason: reason,
+                            canceled_by: "admin",
+                          })
+                          .eq("id", pendingStatusChange.orderId);
+
+                        if (error) {
+                          toast.error("Error al cancelar el pedido", {
+                            id: toastId,
+                          });
+                          setLoading(false);
+                          return;
+                        }
+
+                        await fetchData();
+
+                        toast.success("Pedido cancelado", { id: toastId });
+                        setShowCancelDialog(false);
+                        setPendingStatusChange(null);
+                        setLoading(false);
+                      }}
+                    />
                   </div>
                 </div>
-                {order.status === "cancelled" && (
-                  <div className="mt-2 p-4 bg-red-100 text-red-800 rounded">
-                    <p className="font-semibold">❌ Pedido cancelado</p>
-                    <p>
-                      <strong>Motivo:</strong>{" "}
-                      {order.cancellation_reason || "Sin motivo especificado"}
-                    </p>
-                    <p>
-                      <strong>Cancelado por:</strong>{" "}
-                      {order.canceled_by === "admin"
-                        ? "Administrador"
-                        : "Cliente"}
-                    </p>
-                  </div>
-                )}
-                {order.status === ORDER_STATUS.PENDING && (
-                  <Button
-                    variant="destructive"
-                    className="cursor-pointer mt-2"
-                    onClick={() => setShowCancelDialog(true)}
-                  >
-                    Cancelar pedido
-                  </Button>
-                )}
-                <CancelOrderDialog
-                  open={showCancelDialog}
-                  onClose={() => setShowCancelDialog(false)}
-                  onConfirm={async (reason) => {
-                    const toastId = toast.loading("Cancelando pedido...");
-                    setLoading(true);
-
-                    const { error } = await supabase
-                      .from("orders")
-                      .update({
-                        status: "cancelled",
-                        cancellation_reason: reason,
-                        canceled_by: "admin",
-                      })
-                      .eq("id", order.id);
-
-                    if (error) {
-                      toast.error("Error al cancelar el pedido", {
-                        id: toastId,
-                      });
-                      setLoading(false);
-                      return;
-                    }
-
-                    await fetchData();
-
-                    toast.success("Pedido cancelado", { id: toastId });
-                    setShowCancelDialog(false);
-                    setLoading(false);
-                  }}
-                />
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         ) : (
           <p>No hay pedidos.</p>
         )}
