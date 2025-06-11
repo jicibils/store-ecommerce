@@ -359,13 +359,14 @@ export default function AdminOrdersPage() {
                           variant="destructive"
                           size="sm"
                           className="cursor-pointer"
-                          onClick={() =>
+                          onClick={() => {
                             setPendingStatusChange({
                               orderId: order.id,
                               oldStatus: order.status,
                               newStatus: "cancelled",
-                            }) || setShowCancelDialog(true)
-                          }
+                            });
+                            setShowCancelDialog(true);
+                          }}
                         >
                           Cancelar pedido
                         </Button>
