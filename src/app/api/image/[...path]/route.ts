@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(
-  _: NextRequest,
-  { params }: { params: { path: string[] } }
-) {
-  const filePath = Array.isArray(params.path)
-    ? params.path.join("/")
-    : params.path;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function GET(_req: unknown, context: any) {
+  const filePath = Array.isArray(context?.params?.path)
+    ? context.params.path.join("/")
+    : context.params.path;
 
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
@@ -32,7 +30,8 @@ export async function GET(
         "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
-  } catch {
+  } catch (e) {
+    console.error("Fetch error:", e);
     return new NextResponse("Internal server error", { status: 500 });
   }
 }
