@@ -1,16 +1,20 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 export async function GET(
   _: NextRequest,
-  context: { params: { path: string[] } }
+  { params }: { params: Record<string, string | string[]> }
 ) {
-  const { params } = context;
-  const filePath = params.path.join("/");
+  const pathParam = params.path;
+
+  if (!pathParam || typeof pathParam === "string") {
+    return new NextResponse("Invalid image path", { status: 400 });
+  }
+
+  const filePath = pathParam.join("/");
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   if (!baseUrl) {
-    console.error("❌ Faltante: NEXT_PUBLIC_SUPABASE_URL");
     return new NextResponse("Missing Supabase URL", { status: 500 });
   }
 
