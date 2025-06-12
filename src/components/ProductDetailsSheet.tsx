@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 import capitalize from "lodash.capitalize";
 import { useCart } from "@/contexts/CartContext";
+import { getProxiedImagePath } from "@/lib/utils";
 
 export default function ProductDetailsSheet({
   product,
@@ -45,7 +46,7 @@ export default function ProductDetailsSheet({
           {product.image_url && (
             <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-md">
               <Image
-                src={product.image_url}
+                src={getProxiedImagePath(product.image_url)}
                 alt={product.name}
                 fill
                 className="object-cover"

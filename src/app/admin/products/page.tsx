@@ -9,6 +9,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import Image from "next/image";
 import { toast } from "sonner";
 import { Product } from "@/types/Product";
+import { getProxiedImagePath } from "@/lib/utils";
 
 export default function AdminProductsPage() {
   const router = useRouter();
@@ -158,7 +159,7 @@ export default function AdminProductsPage() {
               <div className="w-14 h-14 relative rounded overflow-hidden bg-muted shrink-0">
                 {p.image_url && (
                   <Image
-                    src={p.image_url}
+                    src={getProxiedImagePath(p.image_url)}
                     alt={p.name}
                     fill
                     className="object-cover"

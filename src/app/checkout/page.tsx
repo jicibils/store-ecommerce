@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { CartItem, useCart } from "@/contexts/CartContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { sendOrderConfirmationEmail } from "@/lib/sendOrderConfirmationEmail";
+import { getProxiedImagePath } from "@/lib/utils";
 
 type Settings = {
   admin_email: string;
@@ -208,7 +209,7 @@ export default function CheckoutPage() {
               <div className="w-14 h-14 relative rounded overflow-hidden bg-muted shrink-0">
                 {item.image_url && (
                   <Image
-                    src={item.image_url}
+                    src={getProxiedImagePath(item.image_url)}
                     alt={item.name}
                     fill
                     className="object-cover"

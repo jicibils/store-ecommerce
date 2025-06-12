@@ -27,3 +27,8 @@ export function normalizePhone(phone: string): string {
   // Agregamos prefijo internacional (Argentina por default)
   return `549${cleaned}`;
 }
+
+export function getProxiedImagePath(url: string): string {
+  const parts = url.split("/storage/v1/object/public/");
+  return parts[1] ? `/api/image/${parts[1]}` : "/placeholder.png";
+}

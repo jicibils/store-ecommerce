@@ -7,6 +7,7 @@ import capitalize from "lodash.capitalize";
 import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import ProductDetailsSheet from "./ProductDetailsSheet";
+import { getProxiedImagePath } from "@/lib/utils";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
@@ -47,7 +48,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
         {product.image_url ? (
           <Image
-            src={product.image_url}
+            src={getProxiedImagePath(product.image_url)}
             alt={product.name}
             fill
             sizes="(min-width: 768px) 33vw, 100vw"

@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { getProxiedImagePath } from "@/lib/utils";
 
 interface Order {
   id: string;
@@ -232,15 +233,17 @@ export default function OrderPage() {
             key={item.id}
             className="border p-3 rounded flex items-center gap-4"
           >
-            <Image
-              src={item.products.image_url}
-              alt={item.products.name}
-              width={64}
-              height={64}
-              className="object-cover rounded border"
-              placeholder="blur"
-              blurDataURL="/placeholder.png"
-            />
+            <div className="w-14 h-14 relative rounded overflow-hidden bg-muted shrink-0">
+              <Image
+                src={getProxiedImagePath(item.products.image_url)}
+                alt={item.products.name}
+                fill
+                className="object-cover"
+                placeholder="blur"
+                blurDataURL="/placeholder.png"
+              />
+            </div>
+
             <div>
               <p className="font-medium">
                 {item.products.name} x{item.quantity} ({item.products.unit})

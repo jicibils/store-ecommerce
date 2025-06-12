@@ -3,6 +3,7 @@
 import { useCart } from "@/contexts/CartContext";
 import Link from "next/link";
 import Image from "next/image";
+import { getProxiedImagePath } from "@/lib/utils";
 
 export default function CartPage() {
   const { cart, removeFromCart, clearCart } = useCart();
@@ -25,10 +26,10 @@ export default function CartPage() {
                 <div className="relative w-20 h-20">
                   {item.image_url && (
                     <Image
-                      src={item.image_url}
+                      src={getProxiedImagePath(item.image_url)}
                       alt={item.name}
                       fill
-                      className="object-cover rounded"
+                      className="object-cover"
                       placeholder="blur"
                       blurDataURL="/placeholder.png"
                     />
