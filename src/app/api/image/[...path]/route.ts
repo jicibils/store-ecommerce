@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-type Context = {
-  params: {
-    path: string[];
-  };
-};
-
 export async function GET(
   _: NextRequest,
-  context: Context
-): Promise<NextResponse> {
-  const { path } = context.params;
+  { params }: { params: { path: string[] } }
+) {
+  const filePath = Array.isArray(params.path)
+    ? params.path.join("/")
+    : params.path;
 
-  const filePath = path.join("/");
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   if (!baseUrl) {
@@ -23,7 +18,6 @@ export async function GET(
 
   try {
     const response = await fetch(imageUrl);
-
     if (!response.ok) {
       return new NextResponse("Image not found", { status: 404 });
     }
