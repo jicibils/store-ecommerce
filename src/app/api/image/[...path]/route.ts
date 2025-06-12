@@ -1,17 +1,10 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   _: NextRequest,
-  { params }: { params: Record<string, string | string[]> }
-) {
-  const pathParam = params.path;
-
-  if (!pathParam || typeof pathParam === "string") {
-    return new NextResponse("Invalid image path", { status: 400 });
-  }
-
-  const filePath = pathParam.join("/");
+  { params }: { params: { path: string[] } }
+): Promise<NextResponse> {
+  const filePath = params.path.join("/");
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   if (!baseUrl) {
@@ -22,7 +15,6 @@ export async function GET(
 
   try {
     const response = await fetch(imageUrl);
-
     if (!response.ok) {
       console.error("❌ Imagen no encontrada:", response.status);
       return new NextResponse("Image not found", { status: 404 });
