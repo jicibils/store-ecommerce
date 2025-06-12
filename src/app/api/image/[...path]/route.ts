@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
+type Context = {
+  params: {
+    path: string[];
+  };
+};
+
 export async function GET(
   _: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: Context
 ): Promise<NextResponse> {
-  const filePath = params.path.join("/");
+  const { path } = context.params;
+
+  const filePath = path.join("/");
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   if (!baseUrl) {
@@ -15,8 +23,8 @@ export async function GET(
 
   try {
     const response = await fetch(imageUrl);
+
     if (!response.ok) {
-      console.error("❌ Imagen no encontrada:", response.status);
       return new NextResponse("Image not found", { status: 404 });
     }
 
@@ -30,8 +38,7 @@ export async function GET(
         "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
-  } catch (err) {
-    console.error("❌ Error haciendo fetch a Supabase:", err);
+  } catch {
     return new NextResponse("Internal server error", { status: 500 });
   }
 }
