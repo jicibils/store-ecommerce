@@ -11,6 +11,7 @@ interface Inquirie {
   email: string;
   message: string;
   created_at: string;
+  seen: boolean;
 }
 
 export default function InquiriesPage() {
@@ -46,13 +47,44 @@ export default function InquiriesPage() {
         <>
           <ul className="space-y-4">
             {inquiries.map((inquirie) => (
-              <li key={inquirie.id} className="border rounded p-4 shadow">
-                <p className="text-sm text-gray-300 mb-1">
+              <li
+                key={inquirie.id}
+                className="border rounded p-4 shadow relative"
+              >
+                <p className="text-sm text-muted-foreground mb-1">
                   {new Date(inquirie.created_at).toLocaleString()}
                 </p>
                 <p className="font-bold">{inquirie.name}</p>
-                <p className="text-sm text-gray-500">{inquirie.email}</p>
+                <p className="text-sm text-muted-foreground">
+                  {inquirie.email}
+                </p>
                 <p className="mt-2 whitespace-pre-wrap">{inquirie.message}</p>
+
+                <button
+                  className={`absolute top-2 right-2 text-xs px-2 py-1 rounded cursor-pointer ${
+                    inquirie.seen
+                      ? "bg-green-200 text-green-800"
+                      : "bg-yellow-200 text-yellow-800"
+                  }`}
+                  onClick={async () => {
+                    const { error } = await supabase
+                      .from("inquiries")
+                      .update({ seen: !inquirie.seen })
+                      .eq("id", inquirie.id);
+
+                    if (!error) {
+                      setInquiries((prev) =>
+                        prev.map((item) =>
+                          item.id === inquirie.id
+                            ? { ...item, seen: !item.seen }
+                            : item
+                        )
+                      );
+                    }
+                  }}
+                >
+                  {inquirie.seen ? "Vista" : "Marcar vista"}
+                </button>
               </li>
             ))}
           </ul>

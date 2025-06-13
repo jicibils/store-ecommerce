@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import AdminPendingOrdersBadge from "@/components/AdminPendingOrdersBadge";
+import AdminInquiriesBadge from "@/components/AdminInquiriesBadge";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -64,6 +65,7 @@ export default function AdminDashboardPage() {
       icon: <MessageCircleMore className="w-6 h-6" />,
       label: "Consultas",
       href: "/admin/inquiries",
+      badge: <AdminInquiriesBadge />,
     },
   ];
 

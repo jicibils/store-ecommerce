@@ -10,3 +10,5 @@ CREATE TABLE IF NOT EXISTS inquiries (
     message TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+ALTER TABLE inquiries ADD COLUMN seen BOOLEAN DEFAULT false;
