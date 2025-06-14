@@ -298,9 +298,9 @@ export default function AdminOrdersPage() {
                               </span>
                             </div>
                             <p className="text-xs text-muted-foreground">
-                              {item.quantity}{" "}
-                              {item.product?.unit_type || "unidad"} – $
-                              {item.price} c/u
+                              {item.quantity} unidad - {"("}
+                              {item.product?.unit}
+                              {")"} - ${item.price} c/u
                             </p>
                           </li>
                         ))}
