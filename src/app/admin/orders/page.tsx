@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import CancelOrderDialog from "@/components/CancelOrderDialog";
 import AuditReasonModal from "@/components/AuditReasonModal";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
-import { normalizePhone } from "@/lib/utils";
+import { formatDateToAR, normalizePhone } from "@/lib/utils";
 
 function generateCSV(orders: any[], orderItems: any[]) {
   if (!orders.length || !orderItems.length) {
@@ -404,7 +404,8 @@ export default function AdminOrdersPage() {
 
                     <p className="text-muted-foreground text-xs pt-2">
                       Pedido creado el{" "}
-                      {new Date(order.created_at).toLocaleString()}
+                      {/* {new Date(order.created_at).toLocaleString()} */}
+                      {formatDateToAR(order.created_at)}
                     </p>
 
                     <CancelOrderDialog

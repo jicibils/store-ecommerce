@@ -32,3 +32,15 @@ export function getProxiedImagePath(url: string): string {
   const parts = url.split("/storage/v1/object/public/");
   return parts[1] ? `/api/image/${parts[1]}` : "/placeholder.png";
 }
+
+export function formatDateToAR(date: string | Date) {
+  return new Date(date).toLocaleString("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
