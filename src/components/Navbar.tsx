@@ -5,6 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import { ShoppingCart, Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { APP_NAME } from "@/lib/constants";
+import { usePathname } from "next/navigation";
 
 import Logo from "./Logo";
 import LeftMenu from "./LeftMenu";
@@ -13,6 +14,7 @@ import AdminBackButton from "./AdminBackButton";
 export default function Navbar() {
   const { cart } = useCart();
   const [dark, setDark] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     const isDark = localStorage.getItem("theme") === "dark";
@@ -26,6 +28,8 @@ export default function Navbar() {
     localStorage.setItem("theme", newTheme ? "dark" : "light");
     document.documentElement.classList.toggle("dark", newTheme);
   };
+
+  if (pathname === "/") return null;
 
   return (
     <nav className="w-full px-6 py-3 flex justify-between items-center bg-background border-b border-border sticky top-0 z-50">

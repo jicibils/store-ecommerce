@@ -13,6 +13,7 @@ export default function MarketComingSoon() {
           className="mx-auto"
           placeholder="blur"
           blurDataURL="/placeholder.png"
+          onError={(e) => (e.currentTarget.src = "/placeholder.png")}
         />
       </div>
       <h2 className="text-2xl font-bold mb-2">Market 📦</h2>

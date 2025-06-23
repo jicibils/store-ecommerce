@@ -215,6 +215,7 @@ export default function CheckoutPage() {
                     className="object-cover"
                     placeholder="blur"
                     blurDataURL="/placeholder.png"
+                    onError={(e) => (e.currentTarget.src = "/placeholder.png")}
                   />
                 )}
               </div>

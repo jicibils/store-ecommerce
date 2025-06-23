@@ -12,6 +12,7 @@ export default function Logo({ size = 40 }: { size?: number }) {
       width={size}
       height={size}
       className="rounded-full"
+      onError={(e) => (e.currentTarget.src = "/placeholder.png")}
     />
   );
 }

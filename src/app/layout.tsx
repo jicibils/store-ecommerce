@@ -37,8 +37,9 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/favicon.png" />
       </head>
       <body
-        className={`min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`bg-gray-50 min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <div className="bg-pattern" />
         <CartProvider>
           <Navbar />
           <Banner />

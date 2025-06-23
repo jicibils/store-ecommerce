@@ -9,7 +9,10 @@ export default function FloatingCartBar() {
   const pathname = usePathname();
 
   if (cart.length === 0) return null;
-  if (pathname !== "/") return null;
+
+  const visiblePrefixes = ["/fruver", "/market", "/sales"];
+  if (!visiblePrefixes.some((prefix) => pathname.startsWith(prefix)))
+    return null;
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const items = cart.reduce((acc, item) => acc + item.quantity, 0);

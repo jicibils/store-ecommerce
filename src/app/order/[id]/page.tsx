@@ -241,6 +241,7 @@ export default function OrderPage() {
                 className="object-cover"
                 placeholder="blur"
                 blurDataURL="/placeholder.png"
+                onError={(e) => (e.currentTarget.src = "/placeholder.png")}
               />
             </div>
 

@@ -35,7 +35,7 @@ export default function ProductCard({ product }: { product: Product }) {
     !!cartItem?.quantity && cartItem?.quantity >= (product.stock ?? 0);
 
   return (
-    <div className="relative rounded-xl border bg-card p-3 shadow-sm hover:shadow-md transition-transform hover:scale-[1.01] text-card-foreground flex flex-col overflow-hidden text-sm">
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition p-4 flex flex-col overflow-hidden text-sm relative">
       <div
         className="relative aspect-square w-full cursor-pointer"
         onClick={() => setOpen(true)}
@@ -55,6 +55,7 @@ export default function ProductCard({ product }: { product: Product }) {
             className="object-cover rounded-md"
             placeholder="blur"
             blurDataURL="/placeholder.png"
+            onError={(e) => (e.currentTarget.src = "/placeholder.png")}
           />
         ) : (
           <div className="w-full h-full bg-muted flex items-center justify-center">

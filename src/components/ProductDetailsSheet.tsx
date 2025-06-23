@@ -52,6 +52,7 @@ export default function ProductDetailsSheet({
                 className="object-cover"
                 placeholder="blur"
                 blurDataURL="/placeholder.png"
+                onError={(e) => (e.currentTarget.src = "/placeholder.png")}
               />
               {!!product.discount && product.discount > 0 && (
                 <div className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-semibold px-2 py-1 rounded shadow z-10">
