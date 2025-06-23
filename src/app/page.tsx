@@ -1,17 +1,7 @@
 "use client";
 
-import CategoryCarousel from "@/components/CategoryCarousel";
 import Logo from "@/components/Logo";
-import {
-  LucideStore,
-  LucideLeaf,
-  LucideTag,
-  Beef,
-  Croissant,
-  Sparkles,
-  Sandwich,
-  Beer,
-} from "lucide-react";
+import { LucideStore, LucideLeaf, LucideTag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
@@ -21,75 +11,71 @@ export default function Home() {
   const features = [
     {
       label: "Market",
-      icon: <LucideStore className="w-10 h-10 text-orange-600" />,
+      icon: <LucideStore className="w-10 h-10 text-orange-600 animate-pulse" />,
       route: "/market",
     },
     {
       label: "Verdulería",
-      icon: <LucideLeaf className="w-10 h-10 text-green-600" />,
+      icon: <LucideLeaf className="w-10 h-10 text-green-600 animate-pulse" />,
       route: "/fruver",
     },
     {
       label: "Ofertas",
-      icon: <LucideTag className="w-10 h-10 text-yellow-500" />,
+      icon: <LucideTag className="w-10 h-10 text-yellow-500 animate-pulse" />,
       route: "/sales",
     },
-  ];
-
-  const CATEGORIES = [
-    { icon: Beef, label: "Carnicería" },
-    { icon: Croissant, label: "Panadería" },
-    { icon: Sparkles, label: "Limpieza" },
-    { icon: Sandwich, label: "Fiambres" },
-    { icon: Beer, label: "Bebidas" },
   ];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <div className="bg-orange-600 min-h-screen flex flex-col">
-        {/* Curva superior */}
-        <div className="relative w-full">
-          <div className="h-[250px] bg-white w-full" />
-
+      <div className="bg-orange-600 min-h-screen flex flex-col relative overflow-hidden">
+        {/* Curva superior decorativa */}
+        <div className="relative w-full h-[250px]">
           <svg
-            className="absolute top-50 left-0 w-full"
+            className="absolute z-2 top-0 left-0 w-full h-full"
             viewBox="0 0 1440 320"
             preserveAspectRatio="none"
           >
             <path
               fill="#ffffff"
-              d="M0,128L48,138.7C96,149,192,171,288,165.3C384,160,480,128,576,112C672,96,768,96,864,122.7C960,149,1056,203,1152,213.3C1248,224,1344,192,1392,176L1440,160V0H0Z"
+              fillOpacity="0.5"
+              d="M0,160L80,138.7C160,117,320,75,480,90.7C640,107,800,181,960,202.7C1120,224,1280,192,1360,176L1440,160V0H0Z"
             />
           </svg>
-          {/* Logo flotando (más bajo y visible) */}
-          <div className="absolute top-50 left-1/2 transform -translate-x-1/2 -translate-y-[40%] z-10 bg-white rounded-full p-4 shadow-xl">
-            <Logo size={200} />
-          </div>
         </div>
 
-        <div className="mt-30 pb-6 flex justify-center gap-6 flex-wrap">
+        {/* Logo central flotante */}
+        <div className="absolute top-[120px] left-1/2 transform -translate-x-1/2 z-20 bg-white rounded-full p-6 shadow-2xl border-4 border-orange-400">
+          <Logo size={180} />
+        </div>
+
+        {/* Frase destacada */}
+        <div
+          className="mt-[250px] text-center text-white font-semibold text-2xl"
+          style={{ fontFamily: "Dancing Script, cursive" }}
+        >
+          Tu tienda de confianza, ahora digital !
+        </div>
+
+        {/* Accesos principales */}
+        <div className="mt-8 pb-6 flex justify-center gap-6 flex-wrap px-4">
           {features.map((f) => (
             <div
               key={f.label}
               onClick={() => router.push(f.route)}
-              className="w-32 h-32 z-10 bg-white rounded-2xl shadow-md flex flex-col items-center justify-center
-                 cursor-pointer transform transition duration-300 hover:scale-110 hover:shadow-xl"
+              className="relativve z-1 w-36 h-36 bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center cursor-pointer
+              transition-all duration-300 hover:scale-105 hover:shadow-2xl"
             >
               {f.icon}
-              <span className="mt-2 font-semibold text-sm text-center">
+              <span className="mt-3 font-bold text-base text-neutral-800">
                 {f.label}
               </span>
             </div>
           ))}
-        </div>
-
-        {/* Categorías */}
-        <div className="bg-orange-600 px-6 pb-20 pt-10 max-w-6xl mx-auto w-full">
-          <CategoryCarousel categories={CATEGORIES} />
         </div>
       </div>
     </motion.div>
