@@ -89,7 +89,7 @@ export default function SalesPage() {
             {hasMore ? (
               <button
                 onClick={() => fetchProducts()}
-                className="mb-2 px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm cursor-pointer"
+                className="mb-2 px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm cursor-pointer bg-white relative z-1"
               >
                 Cargar más productos
               </button>

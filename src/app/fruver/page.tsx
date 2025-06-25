@@ -68,7 +68,7 @@ export default function HomePage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <main className="p-6 bg-gray-50 min-h-screen">
+      <main className="p-6 min-h-screen">
         {/* Buscador y categoría solo si no es Market */}
 
         <ProductsSearch
@@ -94,7 +94,7 @@ export default function HomePage() {
               {hasMore ? (
                 <button
                   onClick={() => fetchProducts()}
-                  className="mb-2 px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm cursor-pointer"
+                  className="mb-2 px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm cursor-pointer bg-white relative z-1"
                 >
                   Cargar más productos
                 </button>

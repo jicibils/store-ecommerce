@@ -62,7 +62,7 @@ export default function Navbar() {
 
         <button
           onClick={toggleTheme}
-          className="hover:text-primary transition"
+          className="hidden hover:text-primary transition"
           aria-label="Toggle dark mode"
         >
           {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}

@@ -75,64 +75,68 @@ export default function AdminSettingsPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Configuración general</h1>
+    <div className="max-w-xl mx-auto p-6 space-y-8 relative z-1">
+      <h1 className="text-2xl font-bold">Configuración general</h1>
 
-      <input
-        name="admin_email"
-        type="email"
-        placeholder="Email del admin"
-        value={form.admin_email}
-        onChange={handleChange}
-        className="w-full border p-2 rounded mb-4"
-      />
-
-      <input
-        name="admin_phone"
-        type="tel"
-        placeholder="WhatsApp del admin"
-        value={form.admin_phone}
-        onChange={handleChange}
-        className="w-full border p-2 rounded mb-4"
-      />
-
-      <Button onClick={handleSave} disabled={loading}>
-        {loading ? "Guardando..." : "Guardar"}
-      </Button>
-
-      {message && <p className="mt-4">{message}</p>}
-
-      <hr className="my-6" />
-
-      <h2 className="text-xl font-bold mb-2">Unidades disponibles</h2>
-
-      <div className="flex gap-2 mb-4">
+      {/* 📬 Caja de contacto del admin */}
+      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow space-y-4">
         <input
-          type="text"
-          placeholder="Nueva unidad (ej: docena)"
-          value={newUnit}
-          onChange={(e) => setNewUnit(e.target.value)}
-          className="flex-1 border p-2 rounded"
+          name="admin_email"
+          type="email"
+          placeholder="Email del admin"
+          value={form.admin_email}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
         />
-        <Button onClick={handleAddUnit}>Agregar</Button>
+
+        <input
+          name="admin_phone"
+          type="tel"
+          placeholder="WhatsApp del admin"
+          value={form.admin_phone}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+        />
+
+        <Button onClick={handleSave} disabled={loading}>
+          {loading ? "Guardando..." : "Guardar"}
+        </Button>
+
+        {message && <p className="text-sm pt-2">{message}</p>}
       </div>
 
-      <ul className="space-y-2">
-        {units.map((unit) => (
-          <li
-            key={unit}
-            className="flex justify-between items-center border p-2 rounded"
-          >
-            <span>{unit}</span>
-            <button
-              onClick={() => handleDeleteUnit(unit)}
-              className="text-red-600 text-sm hover:underline"
+      {/* 📏 Caja de unidades */}
+      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow space-y-4">
+        <h2 className="text-xl font-bold">Unidades disponibles</h2>
+
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Nueva unidad (ej: docena)"
+            value={newUnit}
+            onChange={(e) => setNewUnit(e.target.value)}
+            className="flex-1 border p-2 rounded"
+          />
+          <Button onClick={handleAddUnit}>Agregar</Button>
+        </div>
+
+        <ul className="space-y-2">
+          {units.map((unit) => (
+            <li
+              key={unit}
+              className="flex justify-between items-center border p-2 rounded"
             >
-              Eliminar
-            </button>
-          </li>
-        ))}
-      </ul>
+              <span>{unit}</span>
+              <button
+                onClick={() => handleDeleteUnit(unit)}
+                className="text-red-600 text-sm hover:underline"
+              >
+                Eliminar
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

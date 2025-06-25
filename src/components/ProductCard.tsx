@@ -35,7 +35,7 @@ export default function ProductCard({ product }: { product: Product }) {
     !!cartItem?.quantity && cartItem?.quantity >= (product.stock ?? 0);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition p-4 flex flex-col overflow-hidden text-sm relative">
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition p-4 flex flex-col overflow-hidden text-sm relative z-1">
       <div
         className="relative aspect-square w-full cursor-pointer"
         onClick={() => setOpen(true)}

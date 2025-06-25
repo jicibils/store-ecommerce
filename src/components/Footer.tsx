@@ -19,7 +19,7 @@ export default function Footer() {
   if (pathname === "/") return null;
 
   return (
-    <footer className="w-full border-t border-border  text-foreground mt-10">
+    <footer className="w-full border-t border-border  text-foreground mt-10 bg-white relative z-1">
       <div className="max-w-6xl mx-auto px-6 py-8 grid gap-4 md:grid-cols-3 text-sm">
         <div>
           <h2 className="text-lg font-bold mb-2">

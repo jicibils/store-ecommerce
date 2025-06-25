@@ -97,14 +97,14 @@ export default function AdminProductsPage() {
           placeholder="Buscar por nombre..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="p-2 border w-full sm:w-1/2"
+          className="p-2 px-3 border border-gray-300 dark:border-zinc-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray dark:focus:ring-white w-full sm:w-1/2 bg-white relative z-1"
         />
         <div className="flex gap-2">
           {(["all", "active", "inactive"] as const).map((state) => (
             <button
               key={state}
               onClick={() => setFilterState(state)}
-              className={`px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
+              className={`relative z-1 px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
                 filterState === state
                   ? "bg-black text-white"
                   : "bg-muted text-foreground"
@@ -117,7 +117,7 @@ export default function AdminProductsPage() {
           ))}
           <button
             onClick={() => setShowOutOfStockOnly(!showOutOfStockOnly)}
-            className={`px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
+            className={`relative z-1 px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
               showOutOfStockOnly
                 ? "bg-black text-white"
                 : "bg-muted text-foreground"
@@ -127,7 +127,7 @@ export default function AdminProductsPage() {
           </button>
           <button
             onClick={() => setShowOffersOnly(!showOffersOnly)}
-            className={`px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
+            className={`relative z-1 px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
               showOffersOnly
                 ? "bg-black text-white"
                 : "bg-muted text-foreground"
@@ -138,7 +138,7 @@ export default function AdminProductsPage() {
 
           <button
             onClick={() => setShowDiscountOnly(!showDiscountOnly)}
-            className={`px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
+            className={`relative z-1 px-3 py-1 text-sm border rounded-full transition cursor-pointer ${
               showDiscountOnly
                 ? "bg-black text-white"
                 : "bg-muted text-foreground"
@@ -153,7 +153,7 @@ export default function AdminProductsPage() {
         {current.map((p: Product) => (
           <li
             key={p.id}
-            className="flex items-center justify-between border-b py-2"
+            className="p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-gray-200 dark:border-zinc-800 flex items-center justify-between m-2 relative z-1"
           >
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 relative rounded overflow-hidden bg-muted shrink-0">
@@ -236,23 +236,23 @@ export default function AdminProductsPage() {
         ))}
       </ul>
 
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center mt-6">
         <button
           disabled={page === 1}
           onClick={() => setPage((p) => p - 1)}
-          className="px-4 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="px-4 py-1 border rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted cursor-pointer"
         >
           ← Anterior
         </button>
 
-        <span>
+        <span className="text-sm text-muted-foreground">
           Página {page} de {totalPages}
         </span>
 
         <button
           disabled={current.length < perPage}
           onClick={() => setPage((p) => p + 1)}
-          className="px-4 py-1 border rounded disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="px-4 py-1 border rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted cursor-pointer"
         >
           Siguiente →
         </button>

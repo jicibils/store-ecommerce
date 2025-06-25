@@ -76,7 +76,11 @@ export default function AdminDashboardPage() {
         <button
           onClick={handleLogout}
           disabled={loading}
-          className="border px-4 py-1 rounded hover:bg-white hover:text-black transition dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-black cursor-pointer"
+          className={`relative z-1 px-4 py-2 rounded-md transition font-semibold border
+    ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+    bg-black text-white border-black hover:bg-white hover:text-black
+    dark:bg-white dark:text-black dark:border-white dark:hover:bg-black dark:hover:text-white
+  `}
         >
           {loading ? "Saliendo..." : "Cerrar sesión"}
         </button>
@@ -85,10 +89,9 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {actions.map(({ icon, label, href, badge }) => (
           <Link href={href} key={href}>
-            <div className="border rounded-lg p-6 hover:bg-accent transition shadow flex items-center gap-4 cursor-pointer relative">
+            <div className="relative z-1 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/20 rounded-xl p-6 hover:bg-accent transition shadow flex items-center gap-4 cursor-pointer">
               <div className="text-primary">{icon}</div>
               <span className="text-lg font-medium">{label}</span>
-
               {/* Badge */}
               {badge && <div className="absolute top-2 right-2">{badge}</div>}
             </div>

@@ -131,157 +131,172 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">
+    <div className="max-w-xl mx-auto p-6 space-y-6 relative z-1">
+      <h1 className="text-2xl font-bold">
         {productId ? "Editar producto" : "Agregar producto"}
       </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="block">
-          Nombre
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-            required
-          />
-        </label>
-        <label className="block">
-          Descripción
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-          />
-        </label>
-        <label className="block">
-          Precio
-          <input
-            type="number"
-            name="price"
-            value={form.price}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-            required
-          />
-        </label>
-        <label className="block">
-          Unidad
-          <select
-            name="unit"
-            value={form.unit}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="" disabled hidden>
-              Seleccioná una unidad
-            </option>
-            {units.map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block">
-          URL de imagen
-          <input
-            type="text"
-            name="image_url"
-            value={form.image_url}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-          />
-        </label>
-        <label className="block">
-          Subir imagen
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full border p-2 rounded mt-1"
-          />
-        </label>
-        <label className="block">
-          Categoría
-          <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value=""></option>
-            <option value="frutas">Frutas</option>
-            <option value="verduras">Verduras</option>
-            <option value="market">Market</option>
-          </select>
-        </label>
-        <label className="block">
-          Stock
-          <input
-            type="number"
-            name="stock"
-            value={form.stock}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-            required
-          />
-        </label>
-        <label className="block">
-          Descuento (%)
-          <input
-            type="number"
-            name="discount"
-            value={form.discount}
-            onChange={handleChange}
-            className="w-full border p-2 rounded mt-1"
-          />
-        </label>
-        <div>
+      <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
+            Nombre
             <input
-              type="checkbox"
-              name="is_offer"
-              checked={form.is_offer}
-              onChange={(e) => setForm({ ...form, is_offer: e.target.checked })}
-              className="mr-2"
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              className="w-full border p-2 rounded mt-1"
+              required
             />
-            Es oferta
           </label>
-        </div>
-        <div>
-          <label className="block">
-            <input
-              type="checkbox"
-              name="is_active"
-              checked={form.is_active}
-              onChange={(e) =>
-                setForm({ ...form, is_active: e.target.checked })
-              }
-              className="mr-2"
-            />
-            Activo
-          </label>
-        </div>
-        <div className="pt-2 text-center">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-black text-white px-4 py-2 rounded border-1 border-white"
-          >
-            {loading
-              ? "Guardando..."
-              : productId
-              ? "Guardar cambios"
-              : "Cargar producto"}
-          </button>
-        </div>
-      </form>
 
-      {message && <p className="mt-4">{message}</p>}
+          <label className="block">
+            Descripción
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              className="w-full border p-2 rounded mt-1"
+            />
+          </label>
+
+          <label className="block">
+            Precio
+            <input
+              type="number"
+              name="price"
+              value={form.price}
+              onChange={handleChange}
+              className="w-full border p-2 rounded mt-1"
+              required
+            />
+          </label>
+
+          <label className="block">
+            Unidad
+            <select
+              name="unit"
+              value={form.unit}
+              onChange={handleChange}
+              className="w-full border p-2 rounded"
+            >
+              <option value="" disabled hidden>
+                Seleccioná una unidad
+              </option>
+              {units.map((u) => (
+                <option key={u} value={u}>
+                  {u}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            URL de imagen
+            <input
+              type="text"
+              name="image_url"
+              value={form.image_url}
+              onChange={handleChange}
+              className="w-full border p-2 rounded mt-1"
+            />
+          </label>
+
+          <label className="block">
+            Subir imagen
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full border p-2 rounded mt-1"
+            />
+          </label>
+
+          <label className="block">
+            Categoría
+            <select
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              className="w-full border p-2 rounded"
+            >
+              <option value=""></option>
+              <option value="frutas">Frutas</option>
+              <option value="verduras">Verduras</option>
+              <option value="market">Market</option>
+            </select>
+          </label>
+
+          <label className="block">
+            Stock
+            <input
+              type="number"
+              name="stock"
+              value={form.stock}
+              onChange={handleChange}
+              className="w-full border p-2 rounded mt-1"
+              required
+            />
+          </label>
+
+          <label className="block">
+            Descuento (%)
+            <input
+              type="number"
+              name="discount"
+              value={form.discount}
+              onChange={handleChange}
+              className="w-full border p-2 rounded mt-1"
+            />
+          </label>
+
+          <div>
+            <label className="block">
+              <input
+                type="checkbox"
+                name="is_offer"
+                checked={form.is_offer}
+                onChange={(e) =>
+                  setForm({ ...form, is_offer: e.target.checked })
+                }
+                className="mr-2"
+              />
+              Es oferta
+            </label>
+          </div>
+
+          <div>
+            <label className="block">
+              <input
+                type="checkbox"
+                name="is_active"
+                checked={form.is_active}
+                onChange={(e) =>
+                  setForm({ ...form, is_active: e.target.checked })
+                }
+                className="mr-2"
+              />
+              Activo
+            </label>
+          </div>
+
+          <div className="pt-2 text-center">
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-black text-white px-4 py-2 rounded border border-black hover:bg-white hover:text-black transition disabled:opacity-50"
+            >
+              {loading
+                ? "Guardando..."
+                : productId
+                ? "Guardar cambios"
+                : "Cargar producto"}
+            </button>
+          </div>
+        </form>
+
+        {message && <p className="text-sm pt-2">{message}</p>}
+      </div>
     </div>
   );
 }

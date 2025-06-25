@@ -129,9 +129,9 @@ export default function ProductSalesReport({ orders }: Props) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 ">
             {data.map((p, i) => (
-              <li key={p.product_id} className="border p-3 rounded">
+              <li key={p.product_id} className="border p-3 rounded bg-white">
                 #{i + 1} - {capitalize(p.name)} ({p.quantity} vendidos)
               </li>
             ))}
