@@ -35,7 +35,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-20 bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-lg border border-muted">
+    <div className="max-w-sm mx-auto mt-20 bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-lg border border-muted relative z-1">
       <div className="max-w-sm mx-auto p-4 text-center">
         <div className="flex justify-center mb-2">
           <Logo size={180} />
