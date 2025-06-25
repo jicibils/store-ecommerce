@@ -49,7 +49,7 @@ export default function InquiriesPage() {
             {inquiries.map((inquirie) => (
               <li
                 key={inquirie.id}
-                className="border rounded p-4 shadow relative"
+                className="bg-white dark:bg-zinc-900 border rounded p-4 shadow relative z-1"
               >
                 <p className="text-sm text-muted-foreground mb-1">
                   {new Date(inquirie.created_at).toLocaleString()}
@@ -61,10 +61,10 @@ export default function InquiriesPage() {
                 <p className="mt-2 whitespace-pre-wrap">{inquirie.message}</p>
 
                 <button
-                  className={`absolute top-2 right-2 text-xs px-2 py-1 rounded cursor-pointer ${
+                  className={`absolute top-2 right-2 text-xs px-2 py-1 rounded font-medium border z-10 ${
                     inquirie.seen
-                      ? "bg-green-200 text-green-800"
-                      : "bg-yellow-200 text-yellow-800"
+                      ? "bg-green-200 text-green-800 border-green-300"
+                      : "bg-yellow-200 text-yellow-800 border-yellow-300"
                   }`}
                   onClick={async () => {
                     const { error } = await supabase

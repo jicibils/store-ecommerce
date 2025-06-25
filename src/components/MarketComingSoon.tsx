@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function MarketComingSoon() {
   return (
-    <div className="text-center mt-12">
+    <div className="text-center mt-12 relative z-1">
       <div className="flex justify-center mb-6">
         <Image
           src="/coming_soon.png"
@@ -13,6 +13,7 @@ export default function MarketComingSoon() {
           className="mx-auto"
           placeholder="blur"
           blurDataURL="/placeholder.png"
+          onError={(e) => (e.currentTarget.src = "/placeholder.png")}
         />
       </div>
       <h2 className="text-2xl font-bold mb-2">Market 📦</h2>

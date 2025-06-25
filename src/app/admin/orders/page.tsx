@@ -166,12 +166,12 @@ export default function AdminOrdersPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Pedidos recibidos</h1>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center relative z-1">
             <Button onClick={handleExport}>Exportar CSV</Button>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
+        <div className="grid md:grid-cols-2 gap-4 mb-6 ">
           <div>
             <label className="block mb-1 font-medium">
               Filtrar por método de pago:
@@ -179,7 +179,7 @@ export default function AdminOrdersPage() {
             <select
               value={paymentFilter}
               onChange={(e) => setPaymentFilter(e.target.value)}
-              className="border px-3 py-2 rounded w-full"
+              className="border px-3 py-2 rounded w-full bg-white relative z-1"
             >
               <option value="">Todos</option>
               <option value="efectivo">Efectivo</option>
@@ -193,7 +193,7 @@ export default function AdminOrdersPage() {
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="border px-3 py-2 rounded w-full"
+              className="border px-3 py-2 rounded w-full bg-white relative z-1"
             />
           </div>
 
@@ -204,7 +204,7 @@ export default function AdminOrdersPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border px-3 py-2 rounded w-full"
+              className="border px-3 py-2 rounded w-full bg-white relative z-1"
             >
               <option value="">Todos</option>
               {ORDER_STATUSES.map((status) => (
@@ -235,7 +235,7 @@ export default function AdminOrdersPage() {
               return (
                 <div
                   key={order.id}
-                  className="border rounded-lg p-0 shadow-md bg-white flex flex-col justify-between h-full"
+                  className="border rounded-lg p-0 shadow-md bg-white dark:bg-zinc-900 flex flex-col justify-between h-full relative z-1"
                 >
                   {/* HEADER */}
                   <div className="bg-muted px-4 py-3 flex justify-between items-start border-b">

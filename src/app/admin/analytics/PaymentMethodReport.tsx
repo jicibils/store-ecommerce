@@ -80,7 +80,7 @@ export default function PaymentMethodReport({ orders }: Props) {
             {data.map((item, index) => (
               <li
                 key={item.name}
-                className="border p-3 rounded flex items-center gap-2"
+                className="border p-3 rounded flex items-center gap-2 bg-white"
               >
                 <div
                   className="w-3 h-3 rounded-full"

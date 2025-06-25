@@ -1,154 +1,83 @@
-// src/app/page.tsx
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
-import { Product } from "@/types/Product";
-import ProductCard from "@/components/ProductCard";
-import ProductsSearch from "@/components/ProductsSearch";
-import ProductSkeleton from "@/components/ProductSkeleton";
-import MarketComingSoon from "@/components/MarketComingSoon";
+import Logo from "@/components/Logo";
+import { LucideStore, LucideLeaf, LucideTag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
-const PAGE_SIZE = 12;
+export default function Home() {
+  const router = useRouter();
 
-export default function HomePage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("");
-  const [filter, setFilter] = useState<"all" | "offers" | "market">("all");
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-
-  const fetchProducts = useCallback(
-    async (reset = false) => {
-      if (filter === "market") return; // no busca productos si es market
-
-      setLoading(true);
-
-      const offset = reset ? 0 : products.length;
-      const from = offset;
-      const to = offset + PAGE_SIZE - 1;
-
-      let queryBuilder = supabase
-        .from("products")
-        .select("*")
-        .gt("stock", 0)
-        .eq("is_active", true)
-        .order("name", { ascending: true });
-
-      if (filter === "offers") queryBuilder = queryBuilder.eq("is_offer", true);
-      else if (filter === "all") {
-        queryBuilder = queryBuilder.eq("is_offer", false);
-      }
-
-      if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
-      if (category) queryBuilder = queryBuilder.eq("category", category);
-
-      const { data, error } = await queryBuilder.range(from, to);
-
-      if (!error && data) {
-        if (reset) {
-          setProducts(data);
-        } else {
-          setProducts((prev) => [...prev, ...data]);
-        }
-        setHasMore(data.length === PAGE_SIZE);
-      }
-
-      setLoading(false);
+  const features = [
+    {
+      label: "Market",
+      icon: <LucideStore className="w-10 h-10 text-orange-600 animate-pulse" />,
+      route: "/market",
     },
-    [category, query, filter, products.length]
-  );
-
-  useEffect(() => {
-    fetchProducts(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, category, filter]);
+    {
+      label: "Verdulería",
+      icon: <LucideLeaf className="w-10 h-10 text-green-600 animate-pulse" />,
+      route: "/fruver",
+    },
+    {
+      label: "Ofertas",
+      icon: <LucideTag className="w-10 h-10 text-yellow-500 animate-pulse" />,
+      route: "/sales",
+    },
+  ];
 
   return (
-    <main className="p-6">
-      {/* Pestañas de filtro */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setFilter("all")}
-          className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-            filter === "all"
-              ? "bg-black text-white"
-              : "bg-muted text-foreground"
-          }`}
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <div className="bg-orange-600 min-h-screen flex flex-col relative overflow-hidden">
+        {/* Curva superior decorativa */}
+        <div className="relative w-full h-[250px]">
+          <svg
+            className="absolute z-2 top-0 left-0 w-full h-full"
+            viewBox="0 0 1440 320"
+            preserveAspectRatio="none"
+          >
+            <path
+              fill="#ffffff"
+              fillOpacity="0.5"
+              d="M0,160L80,138.7C160,117,320,75,480,90.7C640,107,800,181,960,202.7C1120,224,1280,192,1360,176L1440,160V0H0Z"
+            />
+          </svg>
+        </div>
+
+        {/* Logo central flotante */}
+        <div className="absolute top-[120px] left-1/2 transform -translate-x-1/2 z-20 bg-white rounded-full p-6 shadow-2xl border-4 border-orange-400">
+          <Logo size={180} />
+        </div>
+
+        {/* Frase destacada */}
+        <div
+          className="mt-[250px] text-center text-white font-semibold text-2xl"
+          style={{ fontFamily: "Dancing Script, cursive" }}
         >
-          Todos
-        </button>
-        <button
-          onClick={() => setFilter("offers")}
-          className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-            filter === "offers"
-              ? "bg-black text-white"
-              : "bg-muted text-foreground"
-          }`}
-        >
-          Ofertas 🔥
-        </button>
-        <button
-          onClick={() => setFilter("market")}
-          className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-            filter === "market"
-              ? "bg-black text-white"
-              : "bg-muted text-foreground"
-          }`}
-        >
-          Market 📦
-        </button>
-      </div>
+          Tu tienda de confianza, ahora digital !
+        </div>
 
-      {/* Buscador y categoría solo si no es Market */}
-      {filter !== "market" && (
-        <ProductsSearch
-          onChange={(q, c) => {
-            setQuery(q);
-            setCategory(c);
-          }}
-        />
-      )}
-
-      {filter === "market" ? (
-        <MarketComingSoon />
-      ) : products.length === 0 ? (
-        <p className="text-center text-muted-foreground">
-          No se encontraron productos.
-        </p>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-
-          <div className="flex justify-center mt-6">
-            {hasMore ? (
-              <button
-                onClick={() => fetchProducts()}
-                className="mb-2 px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm cursor-pointer"
-              >
-                Cargar más productos
-              </button>
-            ) : (
-              <p className="text-sm text-muted-foreground italic">
-                No hay más productos para mostrar.
-              </p>
-            )}
-          </div>
-        </>
-      )}
-
-      {loading && filter !== "market" && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-6">
-          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-            <ProductSkeleton key={i} />
+        {/* Accesos principales */}
+        <div className="mt-8 pb-6 flex justify-center gap-6 flex-wrap px-4">
+          {features.map((f) => (
+            <div
+              key={f.label}
+              onClick={() => router.push(f.route)}
+              className="relativve z-1 w-36 h-36 bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center cursor-pointer
+              transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+            >
+              {f.icon}
+              <span className="mt-3 font-bold text-base text-neutral-800">
+                {f.label}
+              </span>
+            </div>
           ))}
         </div>
-      )}
-    </main>
+      </div>
+    </motion.div>
   );
 }

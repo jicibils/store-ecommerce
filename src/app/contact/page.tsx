@@ -1,4 +1,3 @@
-// Página de contacto: /src/app/contact/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -32,44 +31,50 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Contacto</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Nombre"
-          value={form.name}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <textarea
-          name="message"
-          placeholder="Tu mensaje"
-          value={form.message}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
-        <div className="pt-4 text-center">
-          <button
-            type="submit"
-            className="bg-black text-white px-4 py-2 rounded border border-black hover:bg-white hover:text-black hover:border-black transition cursor-pointer dark:border-white dark:text-white dark:bg-black dark:hover:bg-white dark:hover:text-black dark:hover:border-white"
-          >
-            {loading ? "Enviando..." : "Enviar consulta"}
-          </button>
-        </div>
-      </form>
+    <div className="max-w-xl mx-auto p-6 relative z-1">
+      <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+        <h1 className="text-2xl font-bold">Contacto</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Nombre"
+            value={form.name}
+            onChange={handleChange}
+            required
+            className="input"
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+            className="input"
+          />
+          <textarea
+            name="message"
+            placeholder="Tu mensaje"
+            value={form.message}
+            onChange={handleChange}
+            required
+            className="input h-32 resize-none"
+          />
+          <div className="pt-4 text-center">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`bg-black text-white px-6 py-2 rounded-md border border-black hover:bg-white hover:text-black transition ${
+                loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+              }`}
+            >
+              {loading ? "Enviando..." : "Enviar consulta"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

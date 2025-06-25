@@ -129,8 +129,9 @@ export default function OrderPage() {
   )}`;
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="flex justify-between items-start mb-4">
+    <div className="max-w-2xl mx-auto p-6 space-y-6 relative z-1">
+      {/* 🧾 Encabezado + estado */}
+      <div className="flex justify-between items-start">
         <h1 className="text-2xl font-bold">
           Pedido #{order.id.slice(0, 8)} 📦
         </h1>
@@ -143,28 +144,30 @@ export default function OrderPage() {
         </span>
       </div>
 
-      <p className="text-sm text-muted-foreground mb-1">
-        Realizado: {new Date(order.created_at).toLocaleString()}
-      </p>
-      <p className="font-semibold">{order.customer_name}</p>
-      <p className="text-sm text-muted-foreground mb-1">{order.email}</p>
-      <p className="text-sm text-muted-foreground mb-4">{order.phone}</p>
+      {/* 🧑 Datos del cliente + dirección */}
+      <div className="bg-white rounded-xl shadow p-6 space-y-2">
+        <p className="text-sm text-muted-foreground">
+          Realizado: {new Date(order.created_at).toLocaleString()}
+        </p>
+        <p className="font-semibold">{order.customer_name}</p>
+        <p className="text-sm text-muted-foreground">{order.email}</p>
+        <p className="text-sm text-muted-foreground">{order.phone}</p>
 
-      {order.status === ORDER_STATUS.CANCELLED && (
-        <div className="bg-red-100 text-red-800 p-4 rounded mb-4">
-          <p className="font-semibold mb-1">❌ Pedido cancelado</p>
-          <p>
-            <strong>Motivo:</strong>{" "}
-            {order.cancellation_reason || "Sin motivo especificado"}
-          </p>
-          <p>
-            <strong>Cancelado por:</strong>{" "}
-            {order.canceled_by === "admin" ? "Administrador" : "Cliente"}
-          </p>
-        </div>
-      )}
+        {order.status === ORDER_STATUS.CANCELLED && (
+          <div className="bg-red-100 text-red-800 p-4 rounded mt-4">
+            <p className="font-semibold mb-1">❌ Pedido cancelado</p>
+            <p>
+              <strong>Motivo:</strong>{" "}
+              {order.cancellation_reason || "Sin motivo especificado"}
+            </p>
+            <p>
+              <strong>Cancelado por:</strong>{" "}
+              {order.canceled_by === "admin" ? "Administrador" : "Cliente"}
+            </p>
+          </div>
+        )}
 
-      <div className="border rounded p-4 mb-6">
+        <hr className="my-2" />
         <p>
           <strong>Dirección:</strong> {order.address}
         </p>
@@ -184,12 +187,11 @@ export default function OrderPage() {
         </p>
       </div>
 
+      {/* 💳 Transferencia */}
       {order.payment_method === "transferencia" && (
-        <div className="border rounded p-4 mb-6 bg-yellow-50">
-          <h3 className="font-semibold mb-2 text-yellow-900">
-            💳 Datos de transferencia
-          </h3>
-          <ul className="text-sm text-yellow-800 space-y-1">
+        <div className="bg-yellow-50 border border-yellow-300 text-yellow-900 rounded-xl shadow p-6">
+          <h3 className="font-semibold mb-2">💳 Datos de transferencia</h3>
+          <ul className="text-sm space-y-1">
             <li>
               <strong>Alias:</strong> {ALIAS}
             </li>
@@ -214,8 +216,9 @@ export default function OrderPage() {
         </div>
       )}
 
+      {/* 🛑 Botón de cancelar */}
       {order.status === ORDER_STATUS.PENDING && (
-        <div className="mb-6">
+        <div className="text-center">
           <Button
             className="cursor-pointer"
             variant="destructive"
@@ -226,36 +229,40 @@ export default function OrderPage() {
         </div>
       )}
 
-      <h2 className="text-xl font-bold mb-2">Productos:</h2>
-      <ul className="space-y-2">
-        {items.map((item) => (
-          <li
-            key={item.id}
-            className="border p-3 rounded flex items-center gap-4"
-          >
-            <div className="w-14 h-14 relative rounded overflow-hidden bg-muted shrink-0">
-              <Image
-                src={getProxiedImagePath(item.products.image_url)}
-                alt={item.products.name}
-                fill
-                className="object-cover"
-                placeholder="blur"
-                blurDataURL="/placeholder.png"
-              />
-            </div>
+      {/* 🛒 Lista de productos */}
+      <div className="bg-white rounded-xl shadow p-6">
+        <h2 className="text-xl font-bold mb-4">Productos:</h2>
+        <ul className="space-y-2">
+          {items.map((item) => (
+            <li
+              key={item.id}
+              className="border p-3 rounded flex items-center gap-4"
+            >
+              <div className="w-14 h-14 relative rounded overflow-hidden bg-muted shrink-0">
+                <Image
+                  src={getProxiedImagePath(item.products.image_url)}
+                  alt={item.products.name}
+                  fill
+                  className="object-cover"
+                  placeholder="blur"
+                  blurDataURL="/placeholder.png"
+                  onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+                />
+              </div>
+              <div>
+                <p className="font-medium">
+                  {item.products.name} x{item.quantity} ({item.products.unit})
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  ${item.price.toFixed(2)} c/u
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-            <div>
-              <p className="font-medium">
-                {item.products.name} x{item.quantity} ({item.products.unit})
-              </p>
-              <p className="text-sm text-muted-foreground">
-                ${item.price.toFixed(2)} c/u
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-
+      {/* 🔁 Modal de cancelación */}
       <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
         <DialogContent>
           <DialogHeader>
@@ -272,17 +279,12 @@ export default function OrderPage() {
 
           <div className="flex justify-end gap-2 mt-4">
             <Button
-              className="cursor-pointer"
               variant="outline"
               onClick={() => setShowCancelDialog(false)}
             >
               Volver
             </Button>
-            <Button
-              className="cursor-pointer"
-              variant="destructive"
-              onClick={handleCancelOrder}
-            >
+            <Button variant="destructive" onClick={handleCancelOrder}>
               Cancelar pedido
             </Button>
           </div>

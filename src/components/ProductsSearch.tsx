@@ -27,10 +27,10 @@ export default function ProductsSearch({
           placeholder="Buscar productos..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full sm:w-96 md:w-[500px] border rounded-full px-4 py-2 justify-self-center shadow-sm"
+          className="w-full sm:w-96 md:w-[500px] border rounded-full px-4 py-2 justify-self-center shadow-sm bg-white relative z-1"
         />
         <select
-          className="border p-2 rounded-full text-sm bg-background w-full sm:w-48 justify-self-end shadow-sm"
+          className="border p-2 rounded-full text-sm  w-full sm:w-48 justify-self-end shadow-sm bg-white relative z-1"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >

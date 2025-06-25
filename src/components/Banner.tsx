@@ -40,12 +40,14 @@ export default function Banner({ total = 0 }: { total?: number }) {
     return false;
   });
 
-  if (pathname !== "/") return null;
+  const visiblePrefixes = ["/fruver", "/market", "/sales"];
+  if (!visiblePrefixes.some((prefix) => pathname.startsWith(prefix)))
+    return null;
 
   if (visibles.length === 0) return null;
 
   return (
-    <div className="space-y-2 mb-4">
+    <div className="relative z-1 space-y-2 mb-4">
       {visibles.map((b) => (
         <div
           key={b.id}
