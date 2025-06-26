@@ -226,7 +226,7 @@ export default function CheckoutPage() {
                 <div className="flex-1">
                   <p className="font-medium">{item.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    ${item.price.toLocaleString()} x {item.unit}
+                    ${item.price.toLocaleString()} x {item.unit_label}
                   </p>
 
                   <div className="flex items-center gap-2 mt-1">

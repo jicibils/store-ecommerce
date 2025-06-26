@@ -8,10 +8,11 @@ import ProductCard from "@/components/ProductCard";
 import ProductsSearch from "@/components/ProductsSearch";
 import ProductSkeleton from "@/components/ProductSkeleton";
 import { motion } from "framer-motion";
+import { CATEGORY_TYPE } from "@/lib/constants";
 
 const PAGE_SIZE = 12;
 
-export default function HomePage() {
+export default function FruverPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
@@ -29,7 +30,7 @@ export default function HomePage() {
 
       let queryBuilder = supabase
         .from("products")
-        .select("*")
+        .select("*, category:categories(name), unit:units(label)")
         .gt("stock", 0)
         .eq("is_active", true)
         .order("name", { ascending: true });
@@ -39,7 +40,7 @@ export default function HomePage() {
       }
 
       if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
-      if (category) queryBuilder = queryBuilder.eq("category", category);
+      if (category) queryBuilder = queryBuilder.eq("category_id", category);
 
       const { data, error } = await queryBuilder.range(from, to);
 
@@ -69,9 +70,8 @@ export default function HomePage() {
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <main className="p-6 min-h-screen">
-        {/* Buscador y categoría solo si no es Market */}
-
         <ProductsSearch
+          type={[CATEGORY_TYPE.VERDULERIA]}
           onChange={(q, c) => {
             setQuery(q);
             setCategory(c);

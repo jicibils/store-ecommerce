@@ -48,7 +48,7 @@ export interface OrderItem {
   price: number;
   products: {
     name: string;
-    unit: string;
+    unit: { label: string } | null;
     image_url: string;
   };
 }
@@ -77,7 +77,7 @@ export default function OrderPage() {
 
       const { data: orderItems, error: itemsError } = await supabase
         .from("order_items")
-        .select("*, products(name, unit, image_url)")
+        .select("*, products(name, image_url, unit:unit_id(label))")
         .eq("order_id", id);
 
       if (!itemsError && orderItems) setItems(orderItems);
@@ -251,7 +251,8 @@ export default function OrderPage() {
               </div>
               <div>
                 <p className="font-medium">
-                  {item.products.name} x{item.quantity} ({item.products.unit})
+                  {item.products.name} x{item.quantity} (
+                  {item.products.unit?.label ?? "—"})
                 </p>
                 <p className="text-sm text-muted-foreground">
                   ${item.price.toFixed(2)} c/u

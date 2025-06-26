@@ -14,7 +14,7 @@ export default function LeftMenu() {
   const navLinks = [
     { label: "Inicio", href: "/", icon: <Home className="w-5 h-5" /> },
     {
-      label: "Fruver",
+      label: "Verdulería",
       href: "/fruver",
       icon: <Leaf className="w-5 h-5" />,
     },

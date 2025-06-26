@@ -121,7 +121,13 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          {product.unit} · $ {discountedPrice.toLocaleString()}/{product.unit}
+          {typeof product.unit === "string"
+            ? product.unit
+            : product.unit?.label}{" "}
+          · ${discountedPrice.toLocaleString()}/
+          {typeof product.unit === "string"
+            ? product.unit
+            : product.unit?.label}
         </p>
 
         {showStockWarning && (

@@ -11,7 +11,15 @@ import {
 } from "react";
 import { Product } from "@/types/Product";
 
-export type CartItem = Product & { quantity: number };
+export type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  image_url?: string;
+  unit_label: string;
+  unit_id?: string;
+  quantity: number;
+};
 
 type CartContextType = {
   cart: CartItem[];
@@ -46,6 +54,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find((p) => p.id === product.id);
       const quantityToAdd = product.quantity ?? 1;
 
+      const unit =
+        typeof product.unit === "string"
+          ? { label: product.unit }
+          : product.unit ?? { label: "unidad" };
+
       if (existing) {
         return prev.map((p) =>
           p.id === product.id
@@ -54,7 +67,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
 
-      return [...prev, { ...product, quantity: quantityToAdd }];
+      return [
+        ...prev,
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image_url: product.image_url,
+          unit_label: unit.label,
+          unit_id: unit.id,
+          quantity: quantityToAdd,
+        },
+      ];
     });
   };
 

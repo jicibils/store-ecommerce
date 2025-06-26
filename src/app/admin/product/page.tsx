@@ -14,24 +14,37 @@ export default function ProductPage() {
     name: "",
     description: "",
     price: "",
-    unit: "",
+    unit_id: "",
     is_offer: false,
     image_url: "",
-    category: "",
+    category_id: "",
     stock: "",
     discount: "",
     is_active: true,
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [units, setUnits] = useState<string[]>([]);
+  const [units, setUnits] = useState<{ id: number; label: string }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    []
+  );
 
   useEffect(() => {
     const fetchUnits = async () => {
-      const { data, error } = await supabase.from("units").select("label");
-      if (!error && data) setUnits(data.map((u) => u.label));
+      const { data, error } = await supabase.from("units").select("id, label");
+      if (!error && data) setUnits(data);
     };
     fetchUnits();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("id, name");
+      if (!error && data) setCategories(data);
+    };
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -48,10 +61,10 @@ export default function ProductPage() {
             name: data.name || "",
             description: data.description || "",
             price: data.price?.toString() || "",
-            unit: data.unit || "",
+            unit_id: data.unit_id?.toString() || "",
             is_offer: data.is_offer || false,
             image_url: data.image_url || "",
-            category: data.category || "",
+            category_id: data.category_id || "",
             stock: data.stock?.toString() || "",
             discount: data.discount?.toString() || "",
             is_active: data.is_active ?? true,
@@ -97,6 +110,7 @@ export default function ProductPage() {
       price: parseFloat(form.price),
       stock: parseInt(form.stock),
       discount: parseFloat(form.discount || "0"),
+      unit_id: parseInt(form.unit_id),
     };
 
     const { error } = productId
@@ -118,10 +132,10 @@ export default function ProductPage() {
           name: "",
           description: "",
           price: "",
-          unit: "",
+          unit_id: "",
           is_offer: false,
           image_url: "",
-          category: "",
+          category_id: "",
           stock: "",
           discount: "",
           is_active: true,
@@ -175,17 +189,18 @@ export default function ProductPage() {
           <label className="block">
             Unidad
             <select
-              name="unit"
-              value={form.unit}
+              name="unit_id"
+              value={form.unit_id}
               onChange={handleChange}
               className="w-full border p-2 rounded"
+              required
             >
               <option value="" disabled hidden>
                 Seleccioná una unidad
               </option>
               {units.map((u) => (
-                <option key={u} value={u}>
-                  {u}
+                <option key={u.id} value={u.id}>
+                  {u.label}
                 </option>
               ))}
             </select>
@@ -215,15 +230,18 @@ export default function ProductPage() {
           <label className="block">
             Categoría
             <select
-              name="category"
-              value={form.category}
+              name="category_id"
+              value={form.category_id}
               onChange={handleChange}
               className="w-full border p-2 rounded"
+              required
             >
-              <option value=""></option>
-              <option value="frutas">Frutas</option>
-              <option value="verduras">Verduras</option>
-              <option value="market">Market</option>
+              <option value="">Seleccioná una categoría</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
             </select>
           </label>
 
