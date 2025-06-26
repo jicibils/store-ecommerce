@@ -64,7 +64,7 @@ export default function ProductDetailsSheet({
 
           {product.category && (
             <p className="text-xs text-primary uppercase tracking-wide">
-              {product.category}{" "}
+              {capitalize(product.category.name)}{" "}
               {product.is_offer && (
                 <span className="ml-1 text-destructive font-semibold">
                   EN OFERTA 🔥
@@ -87,7 +87,10 @@ export default function ProductDetailsSheet({
               </span>
             )}
             <div className="text-sm text-muted-foreground">
-              por {product.unit}
+              por{" "}
+              {typeof product.unit === "string"
+                ? product.unit
+                : product.unit?.label}
             </div>
           </div>
 

@@ -85,3 +85,8 @@ export const STATUS_COLORS: Record<string, string> = {
   ready_for_pickup: "bg-orange-200 text-orange-800",
   on_the_way: "bg-cyan-200 text-cyan-800",
 };
+
+export enum CATEGORY_TYPE {
+  MARKET = "market",
+  VERDULERIA = "verduleria",
+}

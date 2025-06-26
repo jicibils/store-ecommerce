@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT,
   price NUMERIC NOT NULL,
   image_url TEXT,
-  category TEXT,
   unit TEXT,
   is_offer BOOLEAN DEFAULT FALSE,
   stock INTEGER DEFAULT 0,
@@ -19,3 +18,10 @@ CREATE TABLE IF NOT EXISTS products (
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+ALTER TABLE products
+  ADD COLUMN category_id UUID REFERENCES categories(id);
+
+
+ALTER TABLE products
+ADD COLUMN unit_id BIGINT REFERENCES units(id);

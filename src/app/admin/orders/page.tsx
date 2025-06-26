@@ -74,7 +74,7 @@ export default function AdminOrdersPage() {
 
     const { data: oi } = await supabase
       .from("order_items")
-      .select("*, product:product_id(*)");
+      .select("*, product:product_id(*, unit:unit_id(label))");
 
     setOrders(o || []);
     setOrderItems(oi || []);
@@ -299,7 +299,7 @@ export default function AdminOrdersPage() {
                             </div>
                             <p className="text-xs text-muted-foreground">
                               {item.quantity} unidad - {"("}
-                              {item.product?.unit}
+                              {item.product?.unit?.label ?? "—"}
                               {")"} - ${item.price} c/u
                             </p>
                           </li>
@@ -407,47 +407,46 @@ export default function AdminOrdersPage() {
                       {/* {new Date(order.created_at).toLocaleString()} */}
                       {formatDateToAR(order.created_at)}
                     </p>
-
-                    <CancelOrderDialog
-                      open={showCancelDialog}
-                      onClose={() => {
-                        setShowCancelDialog(false);
-                        setPendingStatusChange(null);
-                      }}
-                      onConfirm={async (reason) => {
-                        if (!pendingStatusChange) return;
-                        const toastId = toast.loading("Cancelando pedido...");
-                        setLoading(true);
-
-                        const { error } = await supabase
-                          .from("orders")
-                          .update({
-                            status: pendingStatusChange.newStatus,
-                            cancellation_reason: reason,
-                            canceled_by: "admin",
-                          })
-                          .eq("id", pendingStatusChange.orderId);
-
-                        if (error) {
-                          toast.error("Error al cancelar el pedido", {
-                            id: toastId,
-                          });
-                          setLoading(false);
-                          return;
-                        }
-
-                        await fetchData();
-
-                        toast.success("Pedido cancelado", { id: toastId });
-                        setShowCancelDialog(false);
-                        setPendingStatusChange(null);
-                        setLoading(false);
-                      }}
-                    />
                   </div>
                 </div>
               );
             })}
+            <CancelOrderDialog
+              open={showCancelDialog}
+              onClose={() => {
+                setShowCancelDialog(false);
+                setPendingStatusChange(null);
+              }}
+              onConfirm={async (reason) => {
+                if (!pendingStatusChange) return;
+                const toastId = toast.loading("Cancelando pedido...");
+                setLoading(true);
+
+                const { error } = await supabase
+                  .from("orders")
+                  .update({
+                    status: pendingStatusChange.newStatus,
+                    cancellation_reason: reason,
+                    canceled_by: "admin",
+                  })
+                  .eq("id", pendingStatusChange.orderId);
+
+                if (error) {
+                  toast.error("Error al cancelar el pedido", {
+                    id: toastId,
+                  });
+                  setLoading(false);
+                  return;
+                }
+
+                await fetchData();
+
+                toast.success("Pedido cancelado", { id: toastId });
+                setShowCancelDialog(false);
+                setPendingStatusChange(null);
+                setLoading(false);
+              }}
+            />
           </div>
         ) : (
           <p>No hay pedidos.</p>

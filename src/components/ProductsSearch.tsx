@@ -1,27 +1,43 @@
-"use client";
-
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { CATEGORY_TYPE } from "@/lib/constants";
+import capitalize from "lodash.capitalize";
 
-export default function ProductsSearch({
-  onChange,
-}: {
+type Props = {
   onChange: (query: string, category: string) => void;
-}) {
+  type: CATEGORY_TYPE[]; // acepta uno o más tipos
+};
+
+export default function ProductsSearch({ onChange, type }: Props) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    []
+  );
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase
+        .from("categories")
+        .select("id, name")
+        .in("type", type)
+        .order("name");
+      if (data) setCategories(data);
+    };
+    fetchCategories();
+  }, [type]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
       onChange(query, category);
     }, 300);
-
     return () => clearTimeout(handler);
   }, [query, category, onChange]);
 
   return (
-    <section className="w-full  mx-auto px-4 py-8">
+    <section className="w-full mx-auto px-4 py-8">
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4">
-        <div /> {/* vacío: margen izquierdo */}
+        <div />
         <input
           type="text"
           placeholder="Buscar productos..."
@@ -30,13 +46,16 @@ export default function ProductsSearch({
           className="w-full sm:w-96 md:w-[500px] border rounded-full px-4 py-2 justify-self-center shadow-sm bg-white relative z-1"
         />
         <select
-          className="border p-2 rounded-full text-sm  w-full sm:w-48 justify-self-end shadow-sm bg-white relative z-1"
+          className="border p-2 rounded-full text-sm w-full sm:w-48 justify-self-end shadow-sm bg-white relative z-1"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
           <option value="">Todas las categorías</option>
-          <option value="frutas">Frutas</option>
-          <option value="verduras">Verduras</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {capitalize(cat.name)}
+            </option>
+          ))}
         </select>
       </div>
     </section>

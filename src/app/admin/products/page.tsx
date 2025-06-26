@@ -10,15 +10,29 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { Product } from "@/types/Product";
 import { getProxiedImagePath } from "@/lib/utils";
+import capitalize from "lodash.capitalize";
+
+type ProductWithCategory = Product & {
+  category?: {
+    name: string;
+  };
+  unit?: {
+    label: string;
+  };
+};
 
 export default function AdminProductsPage() {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filtered, setFiltered] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductWithCategory[]>([]);
+  const [filtered, setFiltered] = useState<ProductWithCategory[]>([]);
   const [search, setSearch] = useState("");
   const [filterState, setFilterState] = useState<"all" | "active" | "inactive">(
     "all"
   );
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    []
+  );
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [showOutOfStockOnly, setShowOutOfStockOnly] = useState(false);
   const [showOffersOnly, setShowOffersOnly] = useState(false);
   const [showDiscountOnly, setShowDiscountOnly] = useState(false);
@@ -29,7 +43,7 @@ export default function AdminProductsPage() {
     const fetchProducts = async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("*, category:categories(name), unit:units(label)")
         .order("name", { ascending: true });
 
       if (error) toast.error("Error cargando productos");
@@ -42,13 +56,25 @@ export default function AdminProductsPage() {
   }, []);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("id, name");
+      if (!error && data) setCategories(data);
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
     const lower = search.toLowerCase();
-    let result = products.filter((p: Product) =>
+    let result = products.filter((p: ProductWithCategory) =>
       p.name.toLowerCase().includes(lower)
     );
 
     if (filterState === "active") result = result.filter((p) => p.is_active);
     if (filterState === "inactive") result = result.filter((p) => !p.is_active);
+    if (selectedCategory)
+      result = result.filter((p) => p.category_id === selectedCategory);
     if (showOutOfStockOnly) result = result.filter((p) => p.stock === 0);
     if (showOffersOnly) result = result.filter((p) => p.is_offer);
     if (showDiscountOnly)
@@ -63,6 +89,7 @@ export default function AdminProductsPage() {
     showOutOfStockOnly,
     showOffersOnly,
     showDiscountOnly,
+    selectedCategory,
   ]);
 
   const handleToggleActive = async (product: Product) => {
@@ -99,6 +126,18 @@ export default function AdminProductsPage() {
           onChange={(e) => setSearch(e.target.value)}
           className="p-2 px-3 border border-gray-300 dark:border-zinc-700 rounded-full focus:outline-none focus:ring-1 focus:ring-gray dark:focus:ring-white w-full sm:w-1/2 bg-white relative z-1"
         />
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="p-2 border rounded-full bg-muted dark:bg-zinc-800 text-sm z-1"
+        >
+          <option value="">Todas las categorías</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
         <div className="flex gap-2">
           {(["all", "active", "inactive"] as const).map((state) => (
             <button
@@ -150,7 +189,7 @@ export default function AdminProductsPage() {
       </div>
 
       <ul>
-        {current.map((p: Product) => (
+        {current.map((p: ProductWithCategory) => (
           <li
             key={p.id}
             className="p-4 rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-gray-200 dark:border-zinc-800 flex items-center justify-between m-2 relative z-1"
@@ -174,17 +213,17 @@ export default function AdminProductsPage() {
                 <p className="font-semibold flex items-center gap-2">
                   {p.name}
                   {p.is_active ? (
-                    <span className="text-green-600 text-xs font-normal">
-                      activo
+                    <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 font-medium">
+                      Activo
                     </span>
                   ) : (
-                    <span className="text-red-500 text-xs font-normal">
-                      inactivo
+                    <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 font-medium">
+                      Inactivo
                     </span>
                   )}
                 </p>
                 <p className="text-sm text-gray-500">
-                  ${p.price} / {p.unit} - Stock: {p.stock}
+                  ${p.price} / {p.unit?.label ?? "—"} - Stock: {p.stock}
                   {p.is_offer && (
                     <span className="ml-2 text-red-600">🔥 Oferta</span>
                   )}
@@ -192,7 +231,11 @@ export default function AdminProductsPage() {
                     <span className="ml-2 text-amber-600">-{p.discount}%</span>
                   )}
                 </p>
-                <p className="text-xs text-muted-foreground">{p.category}</p>
+                {p.category?.name && (
+                  <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 font-medium">
+                    {capitalize(p.category.name)}
+                  </span>
+                )}
                 <p className="text-xs text-muted-foreground line-clamp-2 max-w-xs">
                   {p.description}
                 </p>
