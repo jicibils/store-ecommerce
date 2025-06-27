@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CATEGORY_TYPE } from "@/lib/constants";
+import { toast } from "sonner";
 
 export default function AdminSettingsPage() {
   const [form, setForm] = useState({
@@ -95,6 +96,9 @@ export default function AdminSettingsPage() {
     if (!error && data) {
       setUnits((prev) => [...prev, ...data]);
       setNewUnit("");
+      toast.success(`Unidad "${cleaned}" agregada`);
+    } else if (error) {
+      toast.error("Error al agregar unidad");
     }
   };
 
@@ -102,6 +106,9 @@ export default function AdminSettingsPage() {
     const { error } = await supabase.from("units").delete().eq("id", id);
     if (!error) {
       setUnits((prev) => prev.filter((u) => u.id !== id));
+      toast.success("Unidad eliminada");
+    } else {
+      toast.error("Error al eliminar unidad");
     }
   };
 
@@ -117,6 +124,9 @@ export default function AdminSettingsPage() {
     if (!error && data) {
       setCategories((prev) => [...prev, ...data]);
       setNewCategory("");
+      toast.success(`Categoría "${cleaned}" agregada`);
+    } else if (error) {
+      toast.error("Error al agregar categoría");
     }
   };
 
@@ -124,6 +134,9 @@ export default function AdminSettingsPage() {
     const { error } = await supabase.from("categories").delete().eq("id", id);
     if (!error) {
       setCategories((prev) => prev.filter((c) => c.id !== id));
+      toast.success("Categoría eliminada");
+    } else {
+      toast.error("Error al eliminar categoría");
     }
   };
 
@@ -210,6 +223,9 @@ export default function AdminSettingsPage() {
                             );
                             setEditingUnitId(null);
                             setEditUnitLabel("");
+                            toast.success("Unidad actualizada");
+                          } else {
+                            toast.error("Error al actualizar unidad");
                           }
                         }}
                       >
@@ -261,7 +277,7 @@ export default function AdminSettingsPage() {
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Nueva categoría (ej: Market)"
+                placeholder="Nueva categoría (ej: Frutas)"
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
                 className="flex-1 border p-2 rounded"
@@ -320,6 +336,9 @@ export default function AdminSettingsPage() {
                             );
                             setEditingId(null);
                             setEditName("");
+                            toast.success("Categoría actualizada");
+                          } else {
+                            toast.error("Error al actualizar categoría");
                           }
                         }}
                       >

@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/uploadImage";
+import Image from "next/image";
+import { getProxiedImagePath } from "@/lib/utils";
 
 export default function ProductPage() {
   const searchParams = useSearchParams();
@@ -151,158 +153,187 @@ export default function ProductPage() {
       </h1>
 
       <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow space-y-4">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block">
-            Nombre
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full border p-2 rounded mt-1"
-              required
-            />
-          </label>
+        <form onSubmit={handleSubmit} className="space-y-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1  gap-8">
+            {/* Caja Imagen */}
+            <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow space-y-4">
+              <h2 className="text-lg font-semibold">Imagen del producto</h2>
 
-          <label className="block">
-            Descripción
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              className="w-full border p-2 rounded mt-1"
-            />
-          </label>
+              {form.image_url ? (
+                <div className="relative w-full aspect-square rounded overflow-hidden border">
+                  <Image
+                    src={getProxiedImagePath(form.image_url)}
+                    alt={form.name}
+                    fill
+                    className="object-contain"
+                    placeholder="blur"
+                    blurDataURL="/placeholder.png"
+                  />
+                </div>
+              ) : (
+                <div className="w-full aspect-square bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center rounded">
+                  <span className="text-zinc-500">Sin imagen</span>
+                </div>
+              )}
 
-          <label className="block">
-            Precio
-            <input
-              type="number"
-              name="price"
-              value={form.price}
-              onChange={handleChange}
-              className="w-full border p-2 rounded mt-1"
-              required
-            />
-          </label>
+              <label className="block">
+                URL de imagen
+                <input
+                  type="text"
+                  name="image_url"
+                  value={form.image_url}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded mt-1"
+                  placeholder="https://..."
+                />
+              </label>
+              <label className="block">
+                Subir imagen
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="w-full border p-2 rounded mt-1"
+                />
+              </label>
+            </div>
 
-          <label className="block">
-            Unidad
-            <select
-              name="unit_id"
-              value={form.unit_id}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            >
-              <option value="" disabled hidden>
-                Seleccioná una unidad
-              </option>
-              {units.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.label}
-                </option>
-              ))}
-            </select>
-          </label>
+            {/* Caja Detalles */}
+            <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow space-y-4">
+              <h2 className="text-lg font-semibold">Detalles del producto</h2>
 
-          <label className="block">
-            URL de imagen
-            <input
-              type="text"
-              name="image_url"
-              value={form.image_url}
-              onChange={handleChange}
-              className="w-full border p-2 rounded mt-1"
-            />
-          </label>
+              <label className="block">
+                Nombre *
+                <input
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded mt-1"
+                  required
+                />
+              </label>
 
-          <label className="block">
-            Subir imagen
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="w-full border p-2 rounded mt-1"
-            />
-          </label>
+              <label className="block">
+                Descripción
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded mt-1"
+                  placeholder="Descripción opcional"
+                />
+              </label>
 
-          <label className="block">
-            Categoría
-            <select
-              name="category_id"
-              value={form.category_id}
-              onChange={handleChange}
-              className="w-full border p-2 rounded"
-              required
-            >
-              <option value="">Seleccioná una categoría</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block">
+                  Precio *
+                  <input
+                    type="number"
+                    name="price"
+                    value={form.price}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded mt-1"
+                    required
+                  />
+                </label>
+                <label className="block">
+                  Stock *
+                  <input
+                    type="number"
+                    name="stock"
+                    value={form.stock}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded mt-1"
+                    required
+                  />
+                </label>
+              </div>
 
-          <label className="block">
-            Stock
-            <input
-              type="number"
-              name="stock"
-              value={form.stock}
-              onChange={handleChange}
-              className="w-full border p-2 rounded mt-1"
-              required
-            />
-          </label>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block">
+                  Categoría *
+                  <select
+                    name="category_id"
+                    value={form.category_id}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded"
+                    required
+                  >
+                    <option value="">Seleccioná una categoría</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-          <label className="block">
-            Descuento (%)
-            <input
-              type="number"
-              name="discount"
-              value={form.discount}
-              onChange={handleChange}
-              className="w-full border p-2 rounded mt-1"
-            />
-          </label>
+                <label className="block">
+                  Unidad *
+                  <select
+                    name="unit_id"
+                    value={form.unit_id}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded"
+                    required
+                  >
+                    <option value="">Seleccioná una unidad</option>
+                    {units.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
 
-          <div>
-            <label className="block">
-              <input
-                type="checkbox"
-                name="is_offer"
-                checked={form.is_offer}
-                onChange={(e) =>
-                  setForm({ ...form, is_offer: e.target.checked })
-                }
-                className="mr-2"
-              />
-              Es oferta
-            </label>
+              <label className="block">
+                Descuento (%)
+                <input
+                  type="number"
+                  name="discount"
+                  value={form.discount}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded mt-1"
+                  placeholder="0"
+                />
+              </label>
+
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="is_offer"
+                    className="cursor-pointer"
+                    checked={form.is_offer}
+                    onChange={(e) =>
+                      setForm({ ...form, is_offer: e.target.checked })
+                    }
+                  />
+                  Es oferta
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    className="cursor-pointer"
+                    checked={form.is_active}
+                    onChange={(e) =>
+                      setForm({ ...form, is_active: e.target.checked })
+                    }
+                  />
+                  Activo
+                </label>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block">
-              <input
-                type="checkbox"
-                name="is_active"
-                checked={form.is_active}
-                onChange={(e) =>
-                  setForm({ ...form, is_active: e.target.checked })
-                }
-                className="mr-2"
-              />
-              Activo
-            </label>
-          </div>
-
-          <div className="pt-2 text-center">
+          <div className="pt-4 text-center">
             <button
               type="submit"
               disabled={loading}
-              className="bg-black text-white px-4 py-2 rounded border border-black hover:bg-white hover:text-black transition disabled:opacity-50"
+              className="bg-black text-white px-6 py-3 rounded border border-black hover:bg-white hover:text-black transition disabled:opacity-50 cursor-pointer"
             >
               {loading
                 ? "Guardando..."
@@ -311,9 +342,9 @@ export default function ProductPage() {
                 : "Cargar producto"}
             </button>
           </div>
-        </form>
 
-        {message && <p className="text-sm pt-2">{message}</p>}
+          {message && <p className="text-sm pt-2 text-center">{message}</p>}
+        </form>
       </div>
     </div>
   );
