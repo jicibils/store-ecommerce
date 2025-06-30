@@ -10,7 +10,7 @@ export default function FloatingCartBar() {
 
   if (cart.length === 0) return null;
 
-  const visiblePrefixes = ["/fruver", "/market", "/sales"];
+  const visiblePrefixes = ["/fruver", "/market", "/sales", "/search"];
   if (!visiblePrefixes.some((prefix) => pathname.startsWith(prefix)))
     return null;
 

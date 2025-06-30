@@ -6,14 +6,24 @@ import capitalize from "lodash.capitalize";
 type Props = {
   onChange: (query: string, category: string) => void;
   type: CATEGORY_TYPE[]; // acepta uno o más tipos
+  selectedCategory: string; // 🚀 le pasamos la categoría externa
 };
 
-export default function ProductsSearch({ onChange, type }: Props) {
+export default function ProductsSearch({
+  onChange,
+  type,
+  selectedCategory,
+}: Props) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     []
   );
+
+  // 🚀 Sync externo -> interno
+  useEffect(() => {
+    setCategory(selectedCategory);
+  }, [selectedCategory]);
 
   useEffect(() => {
     const fetchCategories = async () => {

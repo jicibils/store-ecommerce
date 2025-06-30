@@ -1,6 +1,7 @@
 // src/components/CategoryCard.tsx
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import capitalize from "lodash.capitalize";
 
 interface Props {
   icon: LucideIcon;
@@ -16,7 +17,7 @@ export default function CategoryCard({ icon: Icon, label }: Props) {
       )}
     >
       <Icon className="w-6 h-6 text-orange-600" />
-      <span className="text-sm font-medium">{label}</span>
+      <span className="text-sm font-medium">{capitalize(label)}</span>
     </div>
   );
 }

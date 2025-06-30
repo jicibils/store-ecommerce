@@ -1,7 +1,7 @@
 // src/components/LeftMenu.tsx
 "use client";
 import Link from "next/link";
-import { Home, Menu, ShoppingCart, Leaf, Percent } from "lucide-react";
+import { Home, Menu, Store, Leaf, Tag } from "lucide-react";
 import {
   Sheet,
   SheetTitle,
@@ -21,12 +21,12 @@ export default function LeftMenu() {
     {
       label: "Ofertas",
       href: "/sales",
-      icon: <Percent className="w-5 h-5" />,
+      icon: <Tag className="w-5 h-5" />,
     },
     {
       label: "Market",
       href: "/market",
-      icon: <ShoppingCart className="w-5 h-5" />,
+      icon: <Store className="w-5 h-5" />,
     },
   ];
 

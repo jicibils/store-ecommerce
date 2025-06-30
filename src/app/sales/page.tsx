@@ -21,10 +21,10 @@ export default function SalesPage() {
   const [loading, setLoading] = useState(false);
 
   const fetchProducts = useCallback(
-    async (reset = false) => {
+    async (reset = false, currentCount = 0) => {
       setLoading(true);
 
-      const offset = reset ? 0 : products.length;
+      const offset = reset ? 0 : currentCount;
       const from = offset;
       const to = offset + PAGE_SIZE - 1;
 
@@ -36,9 +36,8 @@ export default function SalesPage() {
         .order("name", { ascending: true });
 
       if (filter === "offers") queryBuilder = queryBuilder.eq("is_offer", true);
-      else if (filter === "all") {
+      else if (filter === "all")
         queryBuilder = queryBuilder.eq("is_offer", false);
-      }
 
       if (query) queryBuilder = queryBuilder.ilike("name", `%${query}%`);
       if (category) queryBuilder = queryBuilder.eq("category_id", category);
@@ -56,7 +55,7 @@ export default function SalesPage() {
 
       setLoading(false);
     },
-    [category, query, filter, products.length]
+    [category, query, filter]
   );
 
   useEffect(() => {
@@ -70,9 +69,17 @@ export default function SalesPage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <main className="p-6">
+      <main className="p-6 max-w-7xl mx-auto min-h-screen space-y-8">
+        <section className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Ofertas 🔥</h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Descubrí promociones y descuentos especiales. Aprovechá las mejores
+            oportunidades para ahorrar en tu compra.
+          </p>
+        </section>
         <ProductsSearch
           type={[CATEGORY_TYPE.MARKET, CATEGORY_TYPE.VERDULERIA]}
+          selectedCategory={category}
           onChange={(q, c) => {
             setQuery(q);
             setCategory(c);
@@ -88,7 +95,7 @@ export default function SalesPage() {
           <div className="flex justify-center mt-6">
             {hasMore ? (
               <button
-                onClick={() => fetchProducts()}
+                onClick={() => fetchProducts(false, products.length)}
                 className="mb-2 px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm cursor-pointer bg-white relative z-1"
               >
                 Cargar más productos

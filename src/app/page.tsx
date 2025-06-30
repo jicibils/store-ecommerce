@@ -4,6 +4,7 @@ import Logo from "@/components/Logo";
 import { LucideStore, LucideLeaf, LucideTag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import GlobalSearchBar from "@/components/GlobalSearch";
 
 export default function Home() {
   const router = useRouter();
@@ -55,11 +56,12 @@ export default function Home() {
 
         {/* Frase destacada */}
         <div
-          className="mt-[250px] text-center text-white font-semibold text-2xl"
+          className="mt-[200px] text-center text-white font-semibold text-2xl"
           style={{ fontFamily: "Dancing Script, cursive" }}
         >
           Tu tienda de confianza, ahora digital !
         </div>
+        <GlobalSearchBar />
 
         {/* Accesos principales */}
         <div className="mt-8 pb-6 flex justify-center gap-6 flex-wrap px-4">
