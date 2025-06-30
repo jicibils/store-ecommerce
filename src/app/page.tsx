@@ -50,7 +50,7 @@ export default function Home() {
         </div>
 
         {/* Logo central flotante */}
-        <div className="absolute top-[120px] left-1/2 transform -translate-x-1/2 z-20 bg-white rounded-full p-6 shadow-2xl border-4 border-orange-400">
+        <div className="absolute top-[120px] left-1/2 transform -translate-x-1/2 z-20 bg-white rounded-full p-6 shadow-2xl border-4 border-orange-700">
           <Logo size={180} />
         </div>
 
