@@ -70,7 +70,7 @@ export default function Home() {
               key={f.label}
               onClick={() => router.push(f.route)}
               className="relativve z-1 w-36 h-36 bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center cursor-pointer
-              transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+              transition-all duration-300 hover:scale-105 hover:shadow-2xl border-3 border-orange-700"
             >
               {f.icon}
               <span className="mt-3 font-bold text-base text-neutral-800">
