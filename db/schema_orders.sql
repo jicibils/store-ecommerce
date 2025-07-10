@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS orders (
   cancellation_reason TEXT,
   canceled_by TEXT,
   created_at TIMESTAMP DEFAULT NOW()
+  shipping_cost numeric DEFAULT 0
 );
 
 -- Tabla de productos dentro de un pedido
@@ -27,3 +28,8 @@ CREATE TABLE IF NOT EXISTS order_items (
   quantity INTEGER NOT NULL,
   price NUMERIC NOT NULL
 );
+
+
+ALTER TABLE orders
+ADD COLUMN destination_lat double precision,
+ADD COLUMN destination_lng double precision;

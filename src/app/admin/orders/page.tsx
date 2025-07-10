@@ -309,8 +309,24 @@ export default function AdminOrdersPage() {
 
                   {/* FOOTER */}
                   <div className="border-t px-4 py-3 text-sm space-y-2">
+                    <div className="bg-muted/50 text-xs p-2 rounded space-y-1">
+                      <p>
+                        <span className="text-muted-foreground">Subtotal:</span>{" "}
+                        <strong>${order.total.toLocaleString()}</strong>
+                      </p>
+                      <p>
+                        <span className="text-muted-foreground">Envío:</span>{" "}
+                        <strong>
+                          ${Number(order.shipping_cost ?? 0).toLocaleString()}
+                        </strong>
+                      </p>
+                      <hr className="border-muted" />
+                    </div>
                     <p className="font-bold text-lg text-green-700">
-                      Total: ${order.total.toLocaleString()}
+                      Total: $
+                      {(
+                        order.total + Number(order.shipping_cost ?? 0)
+                      ).toLocaleString()}
                     </p>
 
                     <div className="flex justify-between items-center gap-2">
