@@ -12,6 +12,8 @@ import { CartItem, useCart } from "@/contexts/CartContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { sendOrderConfirmationEmail } from "@/lib/sendOrderConfirmationEmail";
 import { getProxiedImagePath } from "@/lib/utils";
+import * as Tooltip from "@radix-ui/react-tooltip";
+import ShippingMap from "@/components/ShippingMap";
 
 type Settings = {
   admin_email: string;
@@ -37,6 +39,9 @@ export default function CheckoutPage() {
     admin_email: "",
     admin_phone: "",
   });
+  const [shippingCost, setShippingCost] = useState(0);
+  const [destCoords, setDestCoords] = useState<[number, number] | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -52,6 +57,63 @@ export default function CheckoutPage() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (form.delivery_option !== "entrega" || form.address.trim() === "") {
+      setShippingCost(0);
+      return;
+    }
+    setShippingCost(0);
+    setDestCoords(null);
+
+    const handler = setTimeout(() => {
+      const fetchShipping = async () => {
+        try {
+          const res = await fetch("/api/calculateShipping", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ destination: form.address }),
+          });
+          const data = await res.json();
+          // Después del fetch:
+          if (data.shippingCost && data.destinationCoords) {
+            setShippingCost(data.shippingCost);
+            setDestCoords(data.destinationCoords);
+          } else {
+            setShippingCost(0);
+            setDestCoords(null);
+          }
+        } catch (err) {
+          console.error("Error calculando envío", err);
+          setShippingCost(0);
+          setDestCoords(null);
+        }
+      };
+
+      fetchShipping();
+    }, 1000); // 1 segundo de espera
+
+    return () => clearTimeout(handler);
+  }, [form.delivery_option, form.address]);
+
+  async function recalculateShippingFromCoords(coords: [number, number]) {
+    try {
+      const res = await fetch("/api/calculateShipping", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ coords }),
+      });
+      const data = await res.json();
+      if (data.shippingCost) {
+        setShippingCost(data.shippingCost);
+      } else {
+        setShippingCost(0);
+      }
+    } catch (err) {
+      console.error("Error recalculando envío", err);
+      setShippingCost(0);
+    }
+  }
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
@@ -131,7 +193,10 @@ export default function CheckoutPage() {
             delivery_option: form.delivery_option,
             payment_method: form.payment_method,
             confirm_method: form.confirm_method,
-            total,
+            total: total,
+            shipping_cost: shippingCost,
+            destination_lat: destCoords ? destCoords[1] : null,
+            destination_lng: destCoords ? destCoords[0] : null,
           },
         ])
         .select()
@@ -195,12 +260,11 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-8 relative z-1">
-      {/* 🧾 RESUMEN DEL PEDIDO */}
-      <div className="md:col-span-2">
-        <div className="bg-white p-6 rounded-xl shadow-md space-y-6">
+    <Tooltip.Provider>
+      <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-8 relative z-1">
+        {/* 🧾 Caja 1 - Resumen de productos */}
+        <div className="bg-white p-6 rounded-xl shadow-md space-y-6 md:col-span-2 md:row-start-1">
           <h1 className="text-2xl font-bold">Resumen del pedido 🧾</h1>
-
           <ul className="space-y-4">
             {cart.map((item) => (
               <li
@@ -222,13 +286,11 @@ export default function CheckoutPage() {
                     />
                   )}
                 </div>
-
                 <div className="flex-1">
                   <p className="font-medium">{item.name}</p>
                   <p className="text-sm text-muted-foreground">
                     ${item.price.toLocaleString()} x {item.unit_label}
                   </p>
-
                   <div className="flex items-center gap-2 mt-1">
                     <button
                       onClick={() => {
@@ -249,7 +311,6 @@ export default function CheckoutPage() {
                     >
                       ➕
                     </button>
-
                     <ConfirmDialog
                       title="¿Eliminar producto? 🗑"
                       description={`¿Querés eliminar ${item.name} del carrito?`}
@@ -264,123 +325,178 @@ export default function CheckoutPage() {
                     </ConfirmDialog>
                   </div>
                 </div>
-
                 <p className="font-semibold whitespace-nowrap">
                   ${Number(item.price * item.quantity).toLocaleString()}
                 </p>
               </li>
             ))}
           </ul>
-
-          <div className="flex justify-between items-center pt-6 border-t border-gray-200">
-            <p className="text-lg font-semibold">Total:</p>
-            <p className="text-xl font-bold text-primary">
-              ${total.toLocaleString()}
-            </p>
-          </div>
         </div>
-      </div>
 
-      {/* 📝 FORMULARIO */}
-      <div>
-        <div className="bg-white p-6 rounded-xl shadow-md space-y-4">
+        {/* 📝 Caja 2 - Formulario */}
+        <form
+          id="checkout-form"
+          onSubmit={handleSubmit}
+          className="bg-white p-6 rounded-xl shadow-md space-y-4 md:col-span-2 md:row-start-2"
+        >
           <h2 className="text-lg font-bold">Tus datos 📇</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              name="name"
-              type="text"
-              placeholder="Nombre completo"
-              onChange={handleChange}
-              className="input"
-              required
-            />
-            <select
-              name="delivery_option"
-              onChange={handleChange}
-              className="input"
-              required
-            >
-              <option value="">¿Cómo recibís?</option>
-              <option value="entrega">Entrega a domicilio</option>
-              <option value="retiro">Retiro en el local</option>
-            </select>
+          <input
+            name="name"
+            type="text"
+            placeholder="Nombre completo"
+            onChange={handleChange}
+            className="input"
+            required
+          />
+          <select
+            name="delivery_option"
+            onChange={handleChange}
+            className="input"
+            required
+          >
+            <option value="">¿Cómo recibís?</option>
+            <option value="entrega">Entrega a domicilio</option>
+            <option value="retiro">Retiro en el local</option>
+          </select>
 
-            {form.delivery_option === "entrega" && (
+          {form.delivery_option === "entrega" && (
+            <>
+              <input
+                name="address"
+                type="text"
+                placeholder="Dirección de entrega"
+                onChange={handleChange}
+                className="input"
+                required
+              />
+              <input
+                name="address_details"
+                type="text"
+                placeholder="Depto, piso o referencias (opcional)"
+                onChange={handleChange}
+                className="input"
+              />
+            </>
+          )}
+
+          <select
+            name="confirm_method"
+            onChange={handleChange}
+            className="input"
+            required
+          >
+            <option value="">¿Cómo querés recibir la confirmación?</option>
+            <option value="email">Por Email</option>
+          </select>
+
+          <input
+            name="email"
+            type="email"
+            placeholder="Tu email"
+            onChange={handleChange}
+            className="input"
+            required
+          />
+          <input
+            name="phone"
+            type="tel"
+            placeholder="Tu WhatsApp"
+            onChange={handleChange}
+            className="input"
+            required
+          />
+
+          <select
+            name="payment_method"
+            onChange={handleChange}
+            className="input"
+          >
+            <option value="">¿Cómo querés pagar?</option>
+            <option value="efectivo">Efectivo</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+
+          {message && <p className="text-sm text-green-600">{message}</p>}
+        </form>
+
+        {/* 🧮 Caja 3 - Resumen final */}
+        <div className="bg-white p-6 rounded-xl shadow-md space-y-4 h-fit md:col-span-1 md:row-span-2 md:row-start-1 md:sticky md:top-8">
+          <h2 className="text-lg font-bold">Resumen final 💰</h2>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span>Subtotal productos:</span>
+              <span>${total.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center gap-2">
+              <span className="flex items-center gap-1">
+                Costo de envío:
+                {shippingCost > 0 && (
+                  <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <span className="text-gray-800">ⓘ</span>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content
+                      side="top"
+                      className="rounded bg-black px-2 py-1 text-xs text-white"
+                    >
+                      Si ves irregularidades en el costo, no dudes en
+                      contactarnos.
+                    </Tooltip.Content>
+                  </Tooltip.Root>
+                )}
+              </span>
+              <span>
+                {shippingCost > 0
+                  ? `$${shippingCost.toLocaleString()}`
+                  : form.delivery_option === "entrega" &&
+                    form.address.trim() !== ""
+                  ? "Calculando..."
+                  : "—"}
+              </span>
+            </div>
+            {destCoords && (
               <>
-                <input
-                  name="address"
-                  type="text"
-                  placeholder="Dirección de entrega"
-                  onChange={handleChange}
-                  className="input"
-                  required
-                />
-                <input
-                  name="address_details"
-                  type="text"
-                  placeholder="Depto, piso o referencias (opcional)"
-                  onChange={handleChange}
-                  className="input"
+                <div className="bg-green-50 border border-green-200 text-green-800 text-sm p-3 rounded mb-2">
+                  Si la ubicación no coincide con tu dirección, podés mover el
+                  marcador en el mapa para calcular el costo de envío con
+                  precisión.
+                </div>
+                <ShippingMap
+                  coords={destCoords}
+                  draggable={true}
+                  onCoordsChange={(newCoords) => {
+                    setDestCoords(newCoords);
+                    recalculateShippingFromCoords(newCoords);
+                  }}
                 />
               </>
             )}
 
-            <select
-              name="confirm_method"
-              onChange={handleChange}
-              className="input"
-              required
-            >
-              <option value="">¿Cómo querés recibir la confirmación?</option>
-              <option value="email">Por Email</option>
-            </select>
-
-            <input
-              name="email"
-              type="email"
-              placeholder="Tu email"
-              onChange={handleChange}
-              className="input"
-              required
-            />
-            <input
-              name="phone"
-              type="tel"
-              placeholder="Tu WhatsApp"
-              onChange={handleChange}
-              className="input"
-              required
-            />
-
-            <select
-              name="payment_method"
-              onChange={handleChange}
-              className="input"
-            >
-              <option value="">¿Cómo querés pagar?</option>
-              <option value="efectivo">Efectivo</option>
-              <option value="transferencia">Transferencia</option>
-            </select>
-
-            <button
-              type="submit"
-              disabled={loading || cart.length === 0}
-              className={`w-full bg-black text-white text-lg font-semibold py-3 rounded-md transition ${
-                loading || cart.length === 0
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:bg-gray-800 cursor-pointer"
-              }`}
-            >
-              {loading
-                ? "Enviando..."
-                : `Confirmar pedido 🧾 ($${total.toLocaleString()})`}
-            </button>
-          </form>
-
-          {message && <p className="text-sm text-green-600">{message}</p>}
+            <hr />
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total:</span>
+              <span>${(total + shippingCost).toLocaleString()}</span>
+            </div>
+          </div>
+          <button
+            form="checkout-form"
+            type="submit"
+            disabled={loading || cart.length === 0}
+            className={`w-full bg-black text-white text-lg font-semibold py-3 rounded-md transition ${
+              loading || cart.length === 0
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-gray-800 cursor-pointer"
+            }`}
+          >
+            {loading
+              ? "Enviando..."
+              : `Confirmar pedido 🧾 ($${(
+                  total + shippingCost
+                ).toLocaleString()})`}
+          </button>
         </div>
       </div>
-    </div>
+    </Tooltip.Provider>
   );
 }

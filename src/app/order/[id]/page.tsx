@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { getProxiedImagePath } from "@/lib/utils";
+import ShippingMap from "@/components/ShippingMap";
 
 interface Order {
   id: string;
@@ -35,10 +36,13 @@ interface Order {
   delivery_option: string;
   payment_method: string;
   total: number;
+  shipping_cost?: number | null;
   created_at: string;
   status?: ORDER_STATUS;
   cancellation_reason?: string;
   canceled_by?: "admin" | "cliente";
+  destination_lat?: number | null;
+  destination_lng?: number | null;
 }
 
 export interface OrderItem {
@@ -182,9 +186,37 @@ export default function OrderPage() {
         <p>
           <strong>Pago:</strong> {order.payment_method}
         </p>
-        <p>
-          <strong>Total:</strong> ${order.total.toFixed(2)}
-        </p>
+
+        {order.destination_lat && order.destination_lng && (
+          <div className="bg-white rounded-xl shadow p-4 mt-4">
+            <h3 className="font-semibold mb-2">📍 Ubicación de entrega</h3>
+            <div className="h-64 w-full rounded overflow-hidden">
+              <ShippingMap
+                coords={[order.destination_lng, order.destination_lat]}
+                draggable={false}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Si la ubicación es incorrecta, por favor contáctanos.
+            </p>
+          </div>
+        )}
+        <div className="mt-4 bg-gray-50 rounded p-4 space-y-1">
+          <p>
+            <strong>Subtotal productos:</strong> ${order.total?.toFixed(2)}
+          </p>
+          <p>
+            <strong>Costo de envío:</strong> $
+            {Number(order.shipping_cost ?? 0).toFixed(2)}
+          </p>
+          <hr />
+          <p className="font-semibold text-lg">
+            <strong>Total final:</strong> $
+            {(
+              Number(order.total ?? 0) + Number(order.shipping_cost ?? 0)
+            ).toFixed(2)}
+          </p>
+        </div>
       </div>
 
       {/* 💳 Transferencia */}

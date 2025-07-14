@@ -23,11 +23,11 @@ export default function Banner({ total = 0 }: { total?: number }) {
       {
         id: "free-shipping",
         message:
-          "🚚 Envío gratis en compras mayores a $10000. Aprovechá esta promo!",
+          "🚚 Envío gratis en compras mayores a $30000. Aprovechá esta promo!",
         type: "success",
-        minAmount: 10000,
+        minAmount: 30000,
         subMessage:
-          "* Si el envío supera los 4,5km, puede tener cargos extras. Consultanos.",
+          "* Si el envío supera los 4,5km, puede tener cargos extras. consúltanos.",
       },
       // Más banners futuros acá
     ];
