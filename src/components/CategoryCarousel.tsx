@@ -4,9 +4,11 @@ import CategoryCard from "./CategoryCard";
 
 export default function CategoryCarousel({
   categories,
+  onSelectCategory,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  categories: any[];
+  categories: { id: string; name: string; icon: any }[];
+  onSelectCategory: (categoryId: string) => void;
 }) {
   const [emblaRef] = useEmblaCarousel(
     {
@@ -19,17 +21,21 @@ export default function CategoryCarousel({
         speed: 0.9,
         startDelay: 0,
         stopOnInteraction: false,
-        stopOnMouseEnter: false,
+        stopOnMouseEnter: true,
       }),
     ]
   );
 
   return (
-    <div ref={emblaRef} className="overflow-hidden w-full bg-orange-600 py-4">
+    <div ref={emblaRef} className="overflow-hidden w-full py-4 relative z-1">
       <div className="flex gap-4 px-4">
-        {[...categories, ...categories].map((cat, i) => (
-          <div key={i} className="flex-shrink-0 w-40">
-            <CategoryCard icon={cat.icon} label={cat.label} />
+        {categories.map((cat) => (
+          <div
+            key={cat.id}
+            className="flex-shrink-0 w-40"
+            onClick={() => onSelectCategory(cat.id)}
+          >
+            <CategoryCard icon={cat.icon} label={cat.name} />
           </div>
         ))}
       </div>

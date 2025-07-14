@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -19,12 +18,41 @@ export default function FruverPage() {
   const [filter] = useState<"all">("all");
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<{ id: string }[]>([]);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
 
+  // 🚀 Traer categorías una sola vez
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("type", CATEGORY_TYPE.VERDULERIA);
+
+      if (data) {
+        setCategories(data);
+      }
+      setCategoriesLoaded(true);
+    };
+
+    fetchCategories();
+  }, []);
+
+  // 🚀 Traer productos
   const fetchProducts = useCallback(
-    async (reset = false) => {
+    async (reset = false, currentCount = 0) => {
+      if (!categoriesLoaded) return;
+
+      if (categories.length === 0) {
+        console.warn("No hay categorías de verdulería");
+        setProducts([]);
+        setHasMore(false);
+        return;
+      }
+
       setLoading(true);
 
-      const offset = reset ? 0 : products.length;
+      const offset = reset ? 0 : currentCount;
       const from = offset;
       const to = offset + PAGE_SIZE - 1;
 
@@ -33,6 +61,10 @@ export default function FruverPage() {
         .select("*, category:categories(name), unit:units(label)")
         .gt("stock", 0)
         .eq("is_active", true)
+        .in(
+          "category_id",
+          categories.map((c) => c.id)
+        )
         .order("name", { ascending: true });
 
       if (filter === "all") {
@@ -55,13 +87,15 @@ export default function FruverPage() {
 
       setLoading(false);
     },
-    [category, query, filter, products.length]
+    [categoriesLoaded, categories, category, query, filter]
   );
 
+  // 🚀 Ejecutar solo cuando categoriesLoaded = true
   useEffect(() => {
-    fetchProducts(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, category, filter]);
+    if (categoriesLoaded) {
+      fetchProducts(true);
+    }
+  }, [query, category, filter, categoriesLoaded, fetchProducts]);
 
   return (
     <motion.div
@@ -69,16 +103,24 @@ export default function FruverPage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <main className="p-6 min-h-screen">
+      <main className="p-6 max-w-7xl mx-auto min-h-screen space-y-8">
+        <section className="text-center">
+          <h1 className="text-3xl font-bold mb-2">Verdulería 🥑</h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Las frutas y verduras más frescas, directo a tu casa. Elegí tus
+            productos favoritos y disfrutá calidad todos los días.
+          </p>
+        </section>
         <ProductsSearch
           type={[CATEGORY_TYPE.VERDULERIA]}
+          selectedCategory={category}
           onChange={(q, c) => {
             setQuery(q);
             setCategory(c);
           }}
         />
 
-        {products.length === 0 ? (
+        {products.length === 0 && !loading ? (
           <p className="text-center text-muted-foreground">
             No se encontraron productos.
           </p>
@@ -93,7 +135,7 @@ export default function FruverPage() {
             <div className="flex justify-center mt-6">
               {hasMore ? (
                 <button
-                  onClick={() => fetchProducts()}
+                  onClick={() => fetchProducts(false, products.length)}
                   className="mb-2 px-4 py-2 rounded bg-muted hover:bg-muted/80 border text-sm cursor-pointer bg-white relative z-1"
                 >
                   Cargar más productos

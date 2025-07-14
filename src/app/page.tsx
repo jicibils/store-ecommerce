@@ -4,6 +4,7 @@ import Logo from "@/components/Logo";
 import { LucideStore, LucideLeaf, LucideTag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import GlobalSearchBar from "@/components/GlobalSearch";
 
 export default function Home() {
   const router = useRouter();
@@ -49,17 +50,18 @@ export default function Home() {
         </div>
 
         {/* Logo central flotante */}
-        <div className="absolute top-[120px] left-1/2 transform -translate-x-1/2 z-20 bg-white rounded-full p-6 shadow-2xl border-4 border-orange-400">
+        <div className="absolute top-[120px] left-1/2 transform -translate-x-1/2 z-20 bg-white rounded-full p-6 shadow-2xl border-4 border-orange-700">
           <Logo size={180} />
         </div>
 
         {/* Frase destacada */}
         <div
-          className="mt-[250px] text-center text-white font-semibold text-2xl"
+          className="mt-[200px] text-center text-white font-semibold text-2xl"
           style={{ fontFamily: "Dancing Script, cursive" }}
         >
           Tu tienda de confianza, ahora digital !
         </div>
+        <GlobalSearchBar />
 
         {/* Accesos principales */}
         <div className="mt-8 pb-6 flex justify-center gap-6 flex-wrap px-4">
@@ -68,7 +70,7 @@ export default function Home() {
               key={f.label}
               onClick={() => router.push(f.route)}
               className="relativve z-1 w-36 h-36 bg-white rounded-3xl shadow-lg flex flex-col items-center justify-center cursor-pointer
-              transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+              transition-all duration-300 hover:scale-105 hover:shadow-2xl border-3 border-orange-700"
             >
               {f.icon}
               <span className="mt-3 font-bold text-base text-neutral-800">

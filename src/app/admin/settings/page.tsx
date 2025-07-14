@@ -18,7 +18,7 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [categories, setCategories] = useState<
-    { id: string; name: string; type: string }[]
+    { id: string; name: string; type: string; icon: string }[]
   >([]);
   const [newCategory, setNewCategory] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export default function AdminSettingsPage() {
     const fetchCategories = async () => {
       const { data } = await supabase
         .from("categories")
-        .select("id, name, type")
+        .select("id, name, type, icon")
         .order("name");
       if (data) setCategories(data);
     };
@@ -274,6 +274,20 @@ export default function AdminSettingsPage() {
           {/* 🏷 Categorías */}
           <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow space-y-4">
             <h2 className="text-xl font-bold">Categorías de productos</h2>
+
+            {/* Link a Lucide */}
+            <p className="text-sm text-muted-foreground mb-2">
+              Podés ver todos los íconos disponibles en{" "}
+              <a
+                href="https://lucide.dev/icons"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                lucide.dev/icons
+              </a>
+            </p>
+
             <div className="flex gap-2">
               <input
                 type="text"
@@ -299,7 +313,7 @@ export default function AdminSettingsPage() {
                   className="flex justify-between items-center border p-2 rounded"
                 >
                   {editingId === cat.id ? (
-                    <div className="flex gap-2 items-center w-full">
+                    <div className="flex gap-2 items-center w-full flex-wrap">
                       <input
                         value={editName}
                         onChange={(e) =>
@@ -317,6 +331,20 @@ export default function AdminSettingsPage() {
                         </option>
                         <option value={CATEGORY_TYPE.MARKET}>Market</option>
                       </select>
+                      <input
+                        placeholder="Ícono"
+                        value={cat.icon || ""}
+                        onChange={(e) => {
+                          const updated = e.target.value;
+                          setCategories((prev) =>
+                            prev.map((c) =>
+                              c.id === cat.id ? { ...c, icon: updated } : c
+                            )
+                          );
+                        }}
+                        className="w-32 border p-1 rounded"
+                      />
+
                       <Button
                         size="sm"
                         onClick={async () => {
@@ -324,7 +352,11 @@ export default function AdminSettingsPage() {
                           if (!cleaned) return;
                           const { error } = await supabase
                             .from("categories")
-                            .update({ name: cleaned, type: editType })
+                            .update({
+                              name: cleaned,
+                              type: editType,
+                              icon: cat.icon || null,
+                            })
                             .eq("id", cat.id);
                           if (!error) {
                             setCategories((prev) =>
@@ -362,7 +394,12 @@ export default function AdminSettingsPage() {
                         <span className="text-muted-foreground text-xs">
                           ({cat.type})
                         </span>
-                      </span>{" "}
+                        {cat.icon && (
+                          <span className="text-muted-foreground text-xs ml-1">
+                            [{cat.icon}]
+                          </span>
+                        )}
+                      </span>
                       <div className="flex gap-2">
                         <button
                           onClick={() => {

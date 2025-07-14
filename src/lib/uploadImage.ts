@@ -2,7 +2,8 @@
 import { supabase } from "./supabase";
 
 export async function uploadImage(file: File) {
-  const fileExt = file.name.split(".").pop();
+  const isWebP = file.type === "image/webp";
+  const fileExt = isWebP ? "webp" : file.name.split(".").pop();
   const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `${fileName}`;
 
