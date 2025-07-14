@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/uploadImage";
 import Image from "next/image";
 import { getProxiedImagePath } from "@/lib/utils";
+import imageCompression from "browser-image-compression";
 
 export default function ProductPage() {
   const searchParams = useSearchParams();
@@ -92,9 +93,28 @@ export default function ProductPage() {
 
     setLoading(true);
     try {
-      const imageUrl = await uploadImage(file);
+      // Opciones de compresión
+      const options = {
+        maxWidthOrHeight: 800,
+        initialQuality: 0.75,
+        useWebWorker: true,
+        fileType: "image/webp",
+      };
+
+      // Comprimir y redimensionar
+      const compressedBlob = await imageCompression(file, options);
+
+      // Crear un File con nombre correcto
+      const webpFile = new File(
+        [compressedBlob],
+        `${file.name.split(".")[0]}.webp`,
+        { type: "image/webp" }
+      );
+
+      // Subir imagen optimizada
+      const imageUrl = await uploadImage(webpFile);
       setForm((prev) => ({ ...prev, image_url: imageUrl }));
-      setMessage("✅ Imagen subida con éxito");
+      setMessage("✅ Imagen optimizada y subida con éxito");
     } catch (err) {
       setMessage("❌ Error al subir imagen");
       console.log(err);
