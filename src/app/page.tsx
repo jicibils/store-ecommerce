@@ -1,7 +1,11 @@
 "use client";
 
 import Logo from "@/components/Logo";
-import { LucideStore, LucideLeaf, LucideTag } from "lucide-react";
+import {
+  LucideStore,
+  // LucideLeaf,
+  LucideTag,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import GlobalSearchBar from "@/components/GlobalSearch";
@@ -15,11 +19,11 @@ export default function Home() {
       icon: <LucideStore className="w-10 h-10 text-orange-600 animate-pulse" />,
       route: "/market",
     },
-    {
-      label: "Verdulería",
-      icon: <LucideLeaf className="w-10 h-10 text-green-600 animate-pulse" />,
-      route: "/fruver",
-    },
+    // {
+    //   label: "Verdulería",
+    //   icon: <LucideLeaf className="w-10 h-10 text-green-600 animate-pulse" />,
+    //   route: "/fruver",
+    // },
     {
       label: "Ofertas",
       icon: <LucideTag className="w-10 h-10 text-yellow-500 animate-pulse" />,

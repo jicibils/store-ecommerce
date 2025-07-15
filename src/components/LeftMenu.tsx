@@ -1,7 +1,13 @@
 // src/components/LeftMenu.tsx
 "use client";
 import Link from "next/link";
-import { Home, Menu, Store, Leaf, Tag } from "lucide-react";
+import {
+  Home,
+  Menu,
+  Store,
+  //  Leaf,
+  Tag,
+} from "lucide-react";
 import {
   Sheet,
   SheetTitle,
@@ -13,20 +19,20 @@ import Logo from "./Logo";
 export default function LeftMenu() {
   const navLinks = [
     { label: "Inicio", href: "/", icon: <Home className="w-5 h-5" /> },
+    // {
+    //   label: "Verdulería",
+    //   href: "/fruver",
+    //   icon: <Leaf className="w-5 h-5" />,
+    // },
     {
-      label: "Verdulería",
-      href: "/fruver",
-      icon: <Leaf className="w-5 h-5" />,
+      label: "Market",
+      href: "/market",
+      icon: <Store className="w-5 h-5" />,
     },
     {
       label: "Ofertas",
       href: "/sales",
       icon: <Tag className="w-5 h-5" />,
-    },
-    {
-      label: "Market",
-      href: "/market",
-      icon: <Store className="w-5 h-5" />,
     },
   ];
 
