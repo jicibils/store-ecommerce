@@ -17,7 +17,7 @@ export default function CategoryCard({ icon: Icon, label }: Props) {
       )}
     >
       <Icon className="w-6 h-6 text-orange-600" />
-      <span className="text-sm font-medium">{capitalize(label)}</span>
+      <span className="text-sm truncate font-medium">{capitalize(label)}</span>
     </div>
   );
 }
