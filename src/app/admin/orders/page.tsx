@@ -317,9 +317,22 @@ export default function AdminOrdersPage() {
                       <p>
                         <span className="text-muted-foreground">Envío:</span>{" "}
                         <strong>
-                          ${Number(order.shipping_cost ?? 0).toLocaleString()}
+                          {Number(order.shipping_cost ?? 0) === 0
+                            ? "GRATIS"
+                            : `$${Number(
+                                order.shipping_cost ?? 0
+                              ).toLocaleString()}`}
                         </strong>
                       </p>
+                      {order.total >= 20000 ? (
+                        <p className="text-green-700 text-xs">
+                          ✅ Envío gratis por superar $20.000
+                        </p>
+                      ) : order.total >= 10000 ? (
+                        <p className="text-yellow-700 text-xs">
+                          ✨ Envío con tarifa promocional
+                        </p>
+                      ) : null}
                       <hr className="border-muted" />
                     </div>
                     <p className="font-bold text-lg text-green-700">

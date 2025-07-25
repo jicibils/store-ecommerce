@@ -39,10 +39,12 @@ export default function CheckoutPage() {
     admin_email: "",
     admin_phone: "",
   });
-  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingCost, setShippingCost] = useState<number>(-1);
   const [destCoords, setDestCoords] = useState<[number, number] | null>(null);
 
   const router = useRouter();
+
+  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   useEffect(() => {
     async function fetchData() {
@@ -61,47 +63,81 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (form.delivery_option !== "entrega" || form.address.trim() === "") {
       setShippingCost(0);
+      setDestCoords(null);
       return;
     }
-    setShippingCost(0);
-    setDestCoords(null);
 
-    const handler = setTimeout(() => {
-      const fetchShipping = async () => {
-        try {
-          const res = await fetch("/api/calculateShipping", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ destination: form.address }),
-          });
-          const data = await res.json();
-          // Después del fetch:
-          if (data.shippingCost && data.destinationCoords) {
-            setShippingCost(data.shippingCost);
-            setDestCoords(data.destinationCoords);
-          } else {
-            setShippingCost(0);
-            setDestCoords(null);
+    const costoLocal = calcularCostoEnvioLocal(total);
+
+    if (costoLocal !== null) {
+      setShippingCost(costoLocal);
+
+      if (!destCoords) {
+        const handler = setTimeout(async () => {
+          try {
+            setShippingCost(-1);
+            const res = await fetch("/api/calculateShipping", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                destination: form.address,
+                orderTotal: total,
+              }),
+            });
+            const data = await res.json();
+            if (data.destinationCoords) {
+              setDestCoords(data.destinationCoords);
+              setShippingCost(costoLocal); // restaurar costo local
+            }
+          } catch (err) {
+            console.error("Error obteniendo coordenadas", err);
+            setShippingCost(costoLocal); // por si falla
           }
-        } catch (err) {
-          console.error("Error calculando envío", err);
-          setShippingCost(0);
-          setDestCoords(null);
-        }
-      };
+        }, 500);
+        return () => clearTimeout(handler);
+      }
 
-      fetchShipping();
-    }, 1000); // 1 segundo de espera
+      return;
+    }
+
+    // total < 10k → calculamos precio y coordenadas
+    const handler = setTimeout(async () => {
+      setShippingCost(-1);
+      try {
+        const res = await fetch("/api/calculateShipping", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            destination: form.address,
+            orderTotal: total,
+          }),
+        });
+        const data = await res.json();
+        if (data.shippingCost) setShippingCost(data.shippingCost);
+        if (data.destinationCoords) setDestCoords(data.destinationCoords);
+      } catch (err) {
+        console.error("Error calculando envío", err);
+        setShippingCost(0); // o dejalo en "calculando" si preferís bloquear
+      }
+    }, 500);
 
     return () => clearTimeout(handler);
-  }, [form.delivery_option, form.address]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.delivery_option, form.address, total]);
+
+  function calcularCostoEnvioLocal(total: number): number | null {
+    if (total >= 20000) return 0;
+    if (total >= 15000) return 1000;
+    if (total >= 10000) return 1500;
+    return null; // usar cálculo por API si es menor a 10k
+  }
 
   async function recalculateShippingFromCoords(coords: [number, number]) {
     try {
       const res = await fetch("/api/calculateShipping", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ coords }),
+        body: JSON.stringify({ coords, orderTotal: total }),
       });
       const data = await res.json();
       if (data.shippingCost) {
@@ -114,8 +150,6 @@ export default function CheckoutPage() {
       setShippingCost(0);
     }
   }
-
-  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -447,17 +481,34 @@ export default function CheckoutPage() {
                 )}
               </span>
               <span>
-                {shippingCost > 0
-                  ? `$${shippingCost.toLocaleString()}`
-                  : form.delivery_option === "entrega" &&
-                    form.address.trim() !== ""
+                {form.delivery_option !== "entrega" ||
+                form.address.trim() === ""
+                  ? "—"
+                  : shippingCost === -1
                   ? "Calculando..."
-                  : "—"}
+                  : shippingCost === 0
+                  ? "GRATIS"
+                  : `$${shippingCost.toLocaleString()}`}
               </span>
             </div>
+            {form.delivery_option === "entrega" &&
+              form.address.trim() !== "" && (
+                <>
+                  {total >= 20000 ? (
+                    <div className="text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2 text-sm font-semibold">
+                      🎉 ¡Envío GRATIS aplicado a tu pedido!
+                    </div>
+                  ) : total >= 10000 ? (
+                    <div className="text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2 text-sm">
+                      ✨ Estás disfrutando un envío súper económico gracias al
+                      monto de tu compra.
+                    </div>
+                  ) : null}
+                </>
+              )}
             {destCoords && (
               <>
-                <div className="bg-green-50 border border-green-200 text-green-800 text-sm p-3 rounded mb-2">
+                <div className="bg-blue-50 border border-blue-200 text-blue-500 text-sm p-3 rounded mb-2">
                   Si la ubicación no coincide con tu dirección, podés mover el
                   marcador en el mapa para calcular el costo de envío con
                   precisión.
@@ -476,17 +527,21 @@ export default function CheckoutPage() {
             <hr />
             <div className="flex justify-between font-bold text-lg">
               <span>Total:</span>
-              <span>${(total + shippingCost).toLocaleString()}</span>
+              <span>
+                {shippingCost >= 0
+                  ? `$${(total + shippingCost).toLocaleString()}`
+                  : "Calculando..."}
+              </span>
             </div>
           </div>
           <button
             form="checkout-form"
             type="submit"
-            disabled={loading || cart.length === 0}
-            className={`w-full bg-black text-white text-lg font-semibold py-3 rounded-md transition ${
-              loading || cart.length === 0
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-gray-800 cursor-pointer"
+            disabled={loading || cart.length === 0 || shippingCost < 0}
+            className={`w-full text-white text-lg font-semibold py-3 rounded-md transition ${
+              loading || cart.length === 0 || shippingCost < 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-black hover:bg-gray-800 cursor-pointer"
             }`}
           >
             {loading

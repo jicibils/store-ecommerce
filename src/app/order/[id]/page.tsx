@@ -206,9 +206,20 @@ export default function OrderPage() {
             <strong>Subtotal productos:</strong> ${order.total?.toFixed(2)}
           </p>
           <p>
-            <strong>Costo de envío:</strong> $
-            {Number(order.shipping_cost ?? 0).toFixed(2)}
+            <strong>Costo de envío:</strong>{" "}
+            {Number(order.shipping_cost ?? 0) === 0
+              ? "GRATIS"
+              : `$${Number(order.shipping_cost ?? 0).toFixed(2)}`}
           </p>
+          {order.total >= 20000 ? (
+            <p className="text-green-700 text-sm">
+              ✅ Envío gratis por superar $20.000
+            </p>
+          ) : order.total >= 10000 ? (
+            <p className="text-yellow-700 text-sm">
+              ✨ Envío con tarifa promocional
+            </p>
+          ) : null}
           <hr />
           <p className="font-semibold text-lg">
             <strong>Total final:</strong> $

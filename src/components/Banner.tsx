@@ -22,12 +22,11 @@ export default function Banner({ total = 0 }: { total?: number }) {
     const staticBanners: Banner[] = [
       {
         id: "free-shipping",
-        message:
-          "🚚 Envío gratis en compras mayores a $30000. Aprovechá esta promo!",
+        message: "🚚 Envío gratis desde $20.000",
         type: "success",
-        minAmount: 30000,
+        minAmount: 20000,
         subMessage:
-          "* Si el envío supera los 4,5km, puede tener cargos extras. consúltanos.",
+          "* Disfrutá envíos súper económicos entre $10.000 y $20.000. ¡Como en ningún otro lado!",
       },
       // Más banners futuros acá
     ];
@@ -51,17 +50,17 @@ export default function Banner({ total = 0 }: { total?: number }) {
       {visibles.map((b) => (
         <div
           key={b.id}
-          className={`text-center text-sm rounded p-2 border shadow-sm
-            ${
-              b.type === "success"
-                ? "bg-green-100 text-green-800 border-green-300"
-                : b.type === "warning"
-                ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                : "bg-blue-100 text-blue-800 border-blue-300"
-            }
-          `}
+          className={`text-center rounded p-2 border shadow-sm
+        ${
+          b.type === "success"
+            ? "bg-green-100 text-green-800 border-green-300"
+            : b.type === "warning"
+            ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+            : "bg-blue-100 text-blue-800 border-blue-300"
+        }
+      `}
         >
-          {b.message}
+          <p className="text-base font-semibold">{b.message}</p>
           <p className="text-sm text-muted-foreground mt-1">{b.subMessage}</p>
         </div>
       ))}

@@ -20,7 +20,43 @@ function haversineDistance([lon1, lat1]: number[], [lon2, lat2]: number[]) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { destination, coords } = body;
+  const { destination, coords, orderTotal } = body;
+
+  // ⚠️ Si total >= 10000 y ya recibimos coords, solo devolvemos coords
+  if (orderTotal >= 10000) {
+    if (coords) {
+      return NextResponse.json({
+        destinationCoords: coords,
+        shippingCost: null,
+      });
+    }
+
+    // hacemos geocoding SOLO para obtener coords
+    const geocodeRes = await fetch(
+      `https://api.openrouteservice.org/geocode/search?api_key=${ORS_API_KEY}&text=${encodeURIComponent(
+        destination
+      )}&focus.point.lon=${ORIGIN_COORDS[0]}&focus.point.lat=${
+        ORIGIN_COORDS[1]
+      }`
+    );
+
+    const geocodeData = await geocodeRes.json();
+    const destFeature = geocodeData.features?.[0];
+
+    if (!destFeature) {
+      return NextResponse.json(
+        { error: "No se encontró la dirección destino" },
+        { status: 400 }
+      );
+    }
+
+    const destCoords = destFeature.geometry.coordinates;
+
+    return NextResponse.json({
+      destinationCoords: destCoords,
+      shippingCost: null,
+    });
+  }
 
   let destCoords: [number, number] | undefined;
 
