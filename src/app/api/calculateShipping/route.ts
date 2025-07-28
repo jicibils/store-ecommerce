@@ -32,12 +32,16 @@ export async function POST(req: NextRequest) {
     }
 
     // hacemos geocoding SOLO para obtener coords
+
     const geocodeRes = await fetch(
-      `https://api.openrouteservice.org/geocode/search?api_key=${ORS_API_KEY}&text=${encodeURIComponent(
-        destination
-      )}&focus.point.lon=${ORIGIN_COORDS[0]}&focus.point.lat=${
-        ORIGIN_COORDS[1]
-      }`
+      `https://api.openrouteservice.org/geocode/search?` +
+        `api_key=${ORS_API_KEY}` +
+        `&text=${encodeURIComponent(destination)}` +
+        `&focus.point.lon=${ORIGIN_COORDS[0]}` +
+        `&focus.point.lat=${ORIGIN_COORDS[1]}` +
+        `&boundary.circle.lon=${ORIGIN_COORDS[0]}` +
+        `&boundary.circle.lat=${ORIGIN_COORDS[1]}` +
+        `&boundary.circle.radius=30000` // 30 km
     );
 
     const geocodeData = await geocodeRes.json();
@@ -66,12 +70,16 @@ export async function POST(req: NextRequest) {
       destCoords = coords;
     } else if (destination) {
       // Hacer geocoding
+
       const geocodeRes = await fetch(
-        `https://api.openrouteservice.org/geocode/search?api_key=${ORS_API_KEY}&text=${encodeURIComponent(
-          destination
-        )}&focus.point.lon=${ORIGIN_COORDS[0]}&focus.point.lat=${
-          ORIGIN_COORDS[1]
-        }`
+        `https://api.openrouteservice.org/geocode/search?` +
+          `api_key=${ORS_API_KEY}` +
+          `&text=${encodeURIComponent(destination)}` +
+          `&focus.point.lon=${ORIGIN_COORDS[0]}` +
+          `&focus.point.lat=${ORIGIN_COORDS[1]}` +
+          `&boundary.circle.lon=${ORIGIN_COORDS[0]}` +
+          `&boundary.circle.lat=${ORIGIN_COORDS[1]}` +
+          `&boundary.circle.radius=30000` // 30 km
       );
       const geocodeData = await geocodeRes.json();
       console.log(
