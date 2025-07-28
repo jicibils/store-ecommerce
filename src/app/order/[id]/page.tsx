@@ -203,7 +203,13 @@ export default function OrderPage() {
         )}
         <div className="mt-4 bg-gray-50 rounded p-4 space-y-1">
           <p>
-            <strong>Subtotal productos:</strong> ${order.total?.toFixed(2)}
+            <strong>Subtotal productos:</strong> ${" "}
+            {(
+              Number(order.total ?? 0) + Number(order.shipping_cost ?? 0)
+            ).toLocaleString("es-AR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </p>
           <p>
             <strong>Costo de envío:</strong>{" "}
@@ -211,21 +217,25 @@ export default function OrderPage() {
               ? "GRATIS"
               : `$${Number(order.shipping_cost ?? 0).toFixed(2)}`}
           </p>
-          {order.total >= 20000 ? (
-            <p className="text-green-700 text-sm">
-              ✅ Envío gratis por superar $20.000
-            </p>
-          ) : order.total >= 10000 ? (
-            <p className="text-yellow-700 text-sm">
-              ✨ Envío con tarifa promocional
-            </p>
-          ) : null}
+          {order.delivery_option === "entrega" &&
+            (order.total >= 20000 ? (
+              <p className="text-green-700 text-sm">
+                ✅ Envío gratis por superar $20.000
+              </p>
+            ) : order.total >= 10000 ? (
+              <p className="text-yellow-700 text-sm">
+                ✨ Envío con tarifa promocional
+              </p>
+            ) : null)}
           <hr />
           <p className="font-semibold text-lg">
             <strong>Total final:</strong> $
             {(
               Number(order.total ?? 0) + Number(order.shipping_cost ?? 0)
-            ).toFixed(2)}
+            ).toLocaleString("es-AR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </p>
         </div>
       </div>
