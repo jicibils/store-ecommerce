@@ -75,7 +75,6 @@ export default function CheckoutPage() {
       if (!destCoords) {
         const handler = setTimeout(async () => {
           try {
-            setShippingCost(-1);
             const res = await fetch("/api/calculateShipping", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -87,11 +86,9 @@ export default function CheckoutPage() {
             const data = await res.json();
             if (data.destinationCoords) {
               setDestCoords(data.destinationCoords);
-              setShippingCost(costoLocal); // restaurar costo local
             }
           } catch (err) {
             console.error("Error obteniendo coordenadas", err);
-            setShippingCost(costoLocal); // por si falla
           }
         }, 500);
         return () => clearTimeout(handler);
@@ -142,8 +139,6 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (data.shippingCost) {
         setShippingCost(data.shippingCost);
-      } else {
-        setShippingCost(0);
       }
     } catch (err) {
       console.error("Error recalculando envío", err);
