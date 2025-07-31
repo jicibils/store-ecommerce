@@ -94,9 +94,9 @@ export default function ProductDetailsSheet({
             </div>
           </div>
 
-          <p className="text-sm text-muted-foreground">
+          {/* <p className="text-sm text-muted-foreground">
             Stock disponible: {product.stock}
-          </p>
+          </p> */}
 
           <p className="text-sm">
             Ya agregaste:{" "}
