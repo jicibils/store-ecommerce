@@ -24,7 +24,7 @@
 //   matcher: ["/admin((?!/login).*)"],
 // };
 
-// middleware.ts
+// middleware.ts  (en la raíz o en src/)
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
@@ -42,14 +42,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Bloque de ADMIN
+  // --- ADMIN ---
   if (pathname.startsWith("/admin")) {
-    // Login de admin siempre libre
+    // Permitir login sin sesión
     if (pathname.startsWith("/admin/login")) {
       return NextResponse.next();
     }
 
-    // Resto de /admin requiere sesión
+    // Resto de /admin requiere sesión Supabase
     const res = NextResponse.next();
     const supabase = createMiddlewareClient({ req, res });
     const {
@@ -62,10 +62,10 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    return res; // usuario autenticado ⇒ permite /admin
+    return res; // autenticado ⇒ ok
   }
 
-  // Todo lo que NO es /admin ⇒ cerrado al público
+  // --- TODO lo que NO es /admin => 403 ---
   return new NextResponse("Forbidden", { status: 403 });
 }
 
