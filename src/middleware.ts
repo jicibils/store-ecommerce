@@ -25,46 +25,50 @@
 // };
 
 // middleware.ts
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Rutas permitidas sin login (ajusta a gusto)
-  const publicPaths = ["/admin/login", "/healthz", "/api/public"];
-
-  // Rutas de Next/Supabase que conviene dejar pasar
-  const frameworkPaths = [
-    "/_next",
-    "/favicon.ico",
-    "/robots.txt",
-    "/sitemap.xml",
-    "/auth", // si usás /auth/callback
-  ];
-
-  const isPublic = publicPaths.some((p) => pathname.startsWith(p));
-  const isFramework = frameworkPaths.some((p) => pathname.startsWith(p));
-
-  if (isPublic || isFramework) return NextResponse.next();
-
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    const loginUrl = new URL("/admin/login", req.url);
-    loginUrl.searchParams.set("next", pathname); // para volver después del login
-    return NextResponse.redirect(loginUrl);
+  // Dejar pasar assets del framework y archivos comunes
+  if (
+    pathname.startsWith("/_next") ||
+    pathname === "/favicon.ico" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml"
+  ) {
+    return NextResponse.next();
   }
 
-  return res;
+  // Bloque de ADMIN
+  if (pathname.startsWith("/admin")) {
+    // Login de admin siempre libre
+    if (pathname.startsWith("/admin/login")) {
+      return NextResponse.next();
+    }
+
+    // Resto de /admin requiere sesión
+    const res = NextResponse.next();
+    const supabase = createMiddlewareClient({ req, res });
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      const loginUrl = new URL("/admin/login", req.url);
+      loginUrl.searchParams.set("next", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    return res; // usuario autenticado ⇒ permite /admin
+  }
+
+  // Todo lo que NO es /admin ⇒ cerrado al público
+  return new NextResponse("Forbidden", { status: 403 });
 }
 
-// Aplica a todo el sitio
 export const config = {
-  matcher: ["/((?!.*\\.).*)"], // ignora archivos estáticos *.png, *.js, etc.
+  matcher: ["/:path*"], // aplica a todo
 };
