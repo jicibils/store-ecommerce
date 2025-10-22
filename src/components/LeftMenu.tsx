@@ -4,8 +4,8 @@ import Link from "next/link";
 import {
   Home,
   Menu,
-  Store,
-  //  Leaf,
+  // Store,
+  Leaf,
   Tag,
 } from "lucide-react";
 import {
@@ -19,16 +19,16 @@ import Logo from "./Logo";
 export default function LeftMenu() {
   const navLinks = [
     { label: "Inicio", href: "/", icon: <Home className="w-5 h-5" /> },
-    // {
-    //   label: "Verdulería",
-    //   href: "/fruver",
-    //   icon: <Leaf className="w-5 h-5" />,
-    // },
     {
-      label: "Market",
-      href: "/market",
-      icon: <Store className="w-5 h-5" />,
+      label: "Verdulería",
+      href: "/fruver",
+      icon: <Leaf className="w-5 h-5" />,
     },
+    // {
+    //   label: "Market",
+    //   href: "/market",
+    //   icon: <Store className="w-5 h-5" />,
+    // },
     {
       label: "Ofertas",
       href: "/sales",
