@@ -2,8 +2,8 @@
 
 import Logo from "@/components/Logo";
 import {
-  LucideStore,
-  // LucideLeaf,
+  // LucideStore,
+  LucideLeaf,
   LucideTag,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -14,16 +14,16 @@ export default function Home() {
   const router = useRouter();
 
   const features = [
-    {
-      label: "Market",
-      icon: <LucideStore className="w-10 h-10 text-orange-600 animate-pulse" />,
-      route: "/market",
-    },
     // {
-    //   label: "Verdulería",
-    //   icon: <LucideLeaf className="w-10 h-10 text-green-600 animate-pulse" />,
-    //   route: "/fruver",
+    //   label: "Market",
+    //   icon: <LucideStore className="w-10 h-10 text-orange-600 animate-pulse" />,
+    //   route: "/market",
     // },
+    {
+      label: "Verdulería",
+      icon: <LucideLeaf className="w-10 h-10 text-green-600 animate-pulse" />,
+      route: "/fruver",
+    },
     {
       label: "Ofertas",
       icon: <LucideTag className="w-10 h-10 text-yellow-500 animate-pulse" />,

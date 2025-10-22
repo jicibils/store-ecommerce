@@ -39,7 +39,8 @@ export default function Banner({ total = 0 }: { total?: number }) {
     return false;
   });
 
-  const visiblePrefixes = ["/fruver", "/market", "/sales"];
+  const visiblePrefixes = ["/fruver", "/sales"];
+  // const visiblePrefixes = ["/fruver", "/market", "/sales"];
   if (!visiblePrefixes.some((prefix) => pathname.startsWith(prefix)))
     return null;
 

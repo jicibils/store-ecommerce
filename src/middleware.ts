@@ -1,30 +1,4 @@
-// // middleware.ts
-// import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
-// import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
-
-// export async function middleware(req: NextRequest) {
-//   const res = NextResponse.next();
-//   const supabase = createMiddlewareClient({ req, res });
-
-//   const {
-//     data: { user },
-//   } = await supabase.auth.getUser();
-
-//   // Si no hay usuario, redirigimos al login
-//   if (!user) {
-//     const loginUrl = new URL("/admin/login", req.url);
-//     return NextResponse.redirect(loginUrl);
-//   }
-
-//   return res;
-// }
-
-// export const config = {
-//   matcher: ["/admin((?!/login).*)"],
-// };
-
-// middleware.ts  (en la raíz o en src/)
+// src/middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
@@ -32,7 +6,7 @@ import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Dejar pasar assets del framework y archivos comunes
+  // Dejar pasar assets
   if (
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico" ||
@@ -42,14 +16,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // --- ADMIN ---
+  // --- Proteger SOLO /admin ---
   if (pathname.startsWith("/admin")) {
-    // Permitir login sin sesión
-    if (pathname.startsWith("/admin/login")) {
-      return NextResponse.next();
-    }
+    if (pathname.startsWith("/admin/login")) return NextResponse.next();
 
-    // Resto de /admin requiere sesión Supabase
     const res = NextResponse.next();
     const supabase = createMiddlewareClient({ req, res });
     const {
@@ -61,14 +31,11 @@ export async function middleware(req: NextRequest) {
       loginUrl.searchParams.set("next", pathname);
       return NextResponse.redirect(loginUrl);
     }
-
-    return res; // autenticado ⇒ ok
+    return res;
   }
 
-  // --- TODO lo que NO es /admin => 403 ---
-  return new NextResponse("Forbidden", { status: 403 });
+  // Todo lo demás es público
+  return NextResponse.next();
 }
 
-export const config = {
-  matcher: ["/:path*"], // aplica a todo
-};
+export const config = { matcher: ["/:path*"] };
