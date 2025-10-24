@@ -22,11 +22,11 @@ export default function Banner({ total = 0 }: { total?: number }) {
     const staticBanners: Banner[] = [
       {
         id: "free-shipping",
-        message: "🚚 Envío gratis desde $20.000",
+        message: "🚚 Envío $2.000 superando $15.000 — $1.500 superando $20.000",
         type: "success",
-        minAmount: 20000,
+        minAmount: 15000,
         subMessage:
-          "* Disfrutá envíos súper económicos entre $10.000 y $20.000. ¡Como en ningún otro lado!",
+          "* Superá $15.000 y pagás $2.000 de envío. A partir de $20.000, sólo $1.500.",
       },
       // Más banners futuros acá
     ];

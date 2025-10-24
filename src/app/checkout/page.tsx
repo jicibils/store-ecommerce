@@ -123,10 +123,9 @@ export default function CheckoutPage() {
   }, [form.delivery_option, form.address, total]);
 
   function calcularCostoEnvioLocal(total: number): number | null {
-    if (total >= 20000) return 0;
-    if (total >= 15000) return 1000;
-    if (total >= 10000) return 1500;
-    return null; // usar cálculo por API si es menor a 10k
+    if (total >= 20000) return 1500;
+    if (total >= 15000) return 2000;
+    return null; // usar cálculo por API si es menor a 15k
   }
 
   async function recalculateShippingFromCoords(coords: [number, number]) {
@@ -491,12 +490,11 @@ export default function CheckoutPage() {
                 <>
                   {total >= 20000 ? (
                     <div className="text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2 text-sm font-semibold">
-                      🎉 ¡Envío GRATIS aplicado a tu pedido!
+                      ✅ Envío $1.500 por superar $20.000
                     </div>
-                  ) : total >= 10000 ? (
+                  ) : total >= 15000 ? (
                     <div className="text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2 text-sm">
-                      ✨ Estás disfrutando un envío súper económico gracias al
-                      monto de tu compra.
+                      ✨ Envío $2.000 por superar $15.000
                     </div>
                   ) : null}
                 </>

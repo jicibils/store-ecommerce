@@ -22,8 +22,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { destination, coords, orderTotal } = body;
 
-  // ⚠️ Si total >= 10000 y ya recibimos coords, solo devolvemos coords
-  if (orderTotal >= 10000) {
+  // ⚠️ Si total >= 15000 y ya recibimos coords, solo devolvemos coords
+  if (orderTotal >= 15000) {
     if (coords) {
       return NextResponse.json({
         destinationCoords: coords,

@@ -220,11 +220,11 @@ export default function OrderPage() {
           {order.delivery_option === "entrega" &&
             (order.total >= 20000 ? (
               <p className="text-green-700 text-sm">
-                ✅ Envío gratis por superar $20.000
+                ✅ Envío $1.500 por superar $20.000
               </p>
-            ) : order.total >= 10000 ? (
+            ) : order.total >= 15000 ? (
               <p className="text-yellow-700 text-sm">
-                ✨ Envío con tarifa promocional
+                ✨ Envío $2.000 por superar $15.000
               </p>
             ) : null)}
           <hr />
