@@ -20,7 +20,7 @@ export default function GlobalSearchBar() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center gap-2 max-w-2xl mx-auto mt-6 px-4"
+      className="flex items-center gap-2 max-w-2xl mx-auto mt-100 px-4"
     >
       <div className="relative flex-1 z-1">
         <input
