@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { SOCIAL_LINKS, MIN_INSTAGRAM } from "@/lib/constants";
 
 interface Banner {
   id: string;
@@ -22,11 +23,11 @@ export default function Banner({ total = 0 }: { total?: number }) {
     const staticBanners: Banner[] = [
       {
         id: "free-shipping",
-        message: "🚚 Envío $2.000 superando $15.000 — $1.500 superando $20.000",
+        message:
+          "📲 Mirá nuestras historias en Instagram: si nos seguís, te enterás cuando hay envío gratis.",
         type: "success",
-        minAmount: 15000,
-        subMessage:
-          "* Superá $15.000 y pagás $2.000 de envío. A partir de $20.000, sólo $1.500.",
+        minAmount: 0,
+        subMessage: `Seguinos acá → ${MIN_INSTAGRAM}`,
       },
       // Más banners futuros acá
     ];
@@ -56,13 +57,22 @@ export default function Banner({ total = 0 }: { total?: number }) {
           b.type === "success"
             ? "bg-green-100 text-green-800 border-green-300"
             : b.type === "warning"
-            ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-            : "bg-blue-100 text-blue-800 border-blue-300"
+              ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+              : "bg-blue-100 text-blue-800 border-blue-300"
         }
       `}
         >
           <p className="text-base font-semibold">{b.message}</p>
-          <p className="text-sm text-muted-foreground mt-1">{b.subMessage}</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            <a
+              href={SOCIAL_LINKS.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline font-medium hover:text-green-700"
+            >
+              {b.subMessage}
+            </a>
+          </p>{" "}
         </div>
       ))}
     </div>

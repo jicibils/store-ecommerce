@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import { ShoppingCart, Sun, Moon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { APP_NAME } from "@/lib/constants";
 import { usePathname } from "next/navigation";
 
 import Logo from "./Logo";
@@ -42,8 +41,7 @@ export default function Navbar() {
         href="/"
         className="flex items-center gap-2 text-xl font-bold text-primary absolute left-1/2 transform -translate-x-1/2"
       >
-        <Logo />
-        {APP_NAME}
+        <Logo size={150} />
       </Link>
 
       {/* Right controls */}

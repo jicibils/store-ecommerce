@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const ORS_API_KEY = process.env.ORS_API_KEY!;
-const ORIGIN_COORDS = [-64.34992, -33.13067]; // Calle Lamadrid
+const ORIGIN_COORDS: [number, number] = [-64.34992, -33.13067]; // Calle Lamadrid
 
 function haversineDistance([lon1, lat1]: number[], [lon2, lat2]: number[]) {
   const R = 6371000;
@@ -18,124 +18,75 @@ function haversineDistance([lon1, lat1]: number[], [lon2, lat2]: number[]) {
   return R * c;
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { destination, coords, orderTotal } = body;
+async function geocodeDestination(
+  destination: string,
+): Promise<[number, number]> {
+  const geocodeRes = await fetch(
+    `https://api.openrouteservice.org/geocode/search?` +
+      `api_key=${ORS_API_KEY}` +
+      `&text=${encodeURIComponent(destination)}` +
+      `&focus.point.lon=${ORIGIN_COORDS[0]}` +
+      `&focus.point.lat=${ORIGIN_COORDS[1]}` +
+      `&boundary.circle.lon=${ORIGIN_COORDS[0]}` +
+      `&boundary.circle.lat=${ORIGIN_COORDS[1]}` +
+      `&boundary.circle.radius=30000`,
+  );
 
-  // ⚠️ Si total >= 15000 y ya recibimos coords, solo devolvemos coords
-  if (orderTotal >= 15000) {
-    if (coords) {
-      return NextResponse.json({
-        destinationCoords: coords,
-        shippingCost: null,
-      });
-    }
+  const geocodeData = await geocodeRes.json();
+  const destFeature = geocodeData.features?.[0];
 
-    // hacemos geocoding SOLO para obtener coords
-
-    const geocodeRes = await fetch(
-      `https://api.openrouteservice.org/geocode/search?` +
-        `api_key=${ORS_API_KEY}` +
-        `&text=${encodeURIComponent(destination)}` +
-        `&focus.point.lon=${ORIGIN_COORDS[0]}` +
-        `&focus.point.lat=${ORIGIN_COORDS[1]}` +
-        `&boundary.circle.lon=${ORIGIN_COORDS[0]}` +
-        `&boundary.circle.lat=${ORIGIN_COORDS[1]}` +
-        `&boundary.circle.radius=30000` // 30 km
-    );
-
-    const geocodeData = await geocodeRes.json();
-    const destFeature = geocodeData.features?.[0];
-
-    if (!destFeature) {
-      return NextResponse.json(
-        { error: "No se encontró la dirección destino" },
-        { status: 400 }
-      );
-    }
-
-    const destCoords = destFeature.geometry.coordinates;
-
-    return NextResponse.json({
-      destinationCoords: destCoords,
-      shippingCost: null,
-    });
+  if (!destFeature) {
+    throw new Error("No se encontró la dirección destino");
   }
 
-  let destCoords: [number, number] | undefined;
+  return destFeature.geometry.coordinates as [number, number];
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { destination, coords } = body as {
+    destination?: string;
+    coords?: [number, number];
+  };
 
   try {
-    if (coords && coords.length === 2) {
-      // Usar coords directamente
-      destCoords = coords;
-    } else if (destination) {
-      // Hacer geocoding
+    let destCoords: [number, number];
 
-      const geocodeRes = await fetch(
-        `https://api.openrouteservice.org/geocode/search?` +
-          `api_key=${ORS_API_KEY}` +
-          `&text=${encodeURIComponent(destination)}` +
-          `&focus.point.lon=${ORIGIN_COORDS[0]}` +
-          `&focus.point.lat=${ORIGIN_COORDS[1]}` +
-          `&boundary.circle.lon=${ORIGIN_COORDS[0]}` +
-          `&boundary.circle.lat=${ORIGIN_COORDS[1]}` +
-          `&boundary.circle.radius=30000` // 30 km
-      );
-      const geocodeData = await geocodeRes.json();
-      console.log(
-        "🚀 [DEBUG] Geocode response:",
-        JSON.stringify(geocodeData, null, 2)
-      );
-      const destFeature = geocodeData.features?.[0];
-      if (!destFeature) {
-        return NextResponse.json(
-          { error: "No se encontró la dirección destino" },
-          { status: 400 }
-        );
-      }
-      destCoords = destFeature.geometry.coordinates;
-    } else {
+    // 1) coords directas (map drag)
+    if (coords && coords.length === 2) {
+      destCoords = coords;
+    }
+    // 2) destination string (input address)
+    else if (destination && destination.trim() !== "") {
+      destCoords = await geocodeDestination(destination);
+    }
+    // 3) nada válido
+    else {
       return NextResponse.json(
         { error: "Debes enviar 'destination' o 'coords'" },
-        { status: 400 }
-      );
-    }
-
-    console.log("📍 [DEBUG] Destination coordinates:", destCoords);
-
-    if (!destCoords) {
-      return NextResponse.json(
-        { error: "No se encontraron coordenadas destino" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Routing con OSRM
     const routingRes = await fetch(
       `https://router.project-osrm.org/route/v1/driving/${ORIGIN_COORDS.join(
-        ","
-      )};${destCoords.join(",")}?overview=false`
+        ",",
+      )};${destCoords.join(",")}?overview=false`,
     );
     const routingData = await routingRes.json();
 
-    const distanceLineal = haversineDistance(ORIGIN_COORDS, destCoords);
-    console.log("🚀 [DEBUG] distanceLineal:", distanceLineal);
-
     const distanceRuta = routingData.routes?.[0]?.distance;
-    console.log("🚀 [DEBUG] distanceRuta:", distanceRuta);
-
     if (!distanceRuta) {
       throw new Error("No se pudo calcular la ruta.");
     }
 
-    const distanceMetersPromedio = (distanceLineal + distanceRuta) / 2;
-    console.log("🚀 [DEBUG] distanceMetersPromedio:", distanceMetersPromedio);
+    // Si querés mantener el debug:
+    const distanceLineal = haversineDistance(ORIGIN_COORDS, destCoords);
+    console.log("🚀 [DEBUG] distanceLineal:", distanceLineal);
+    console.log("🚀 [DEBUG] distanceRuta:", distanceRuta);
 
     const distanceMeters = distanceRuta;
-
-    // Redondea
-    // const blocks = Math.floor(distanceMeters / 100);
-
     const blocks = Math.ceil(distanceMeters / 100);
 
     const priceTable = [
@@ -161,21 +112,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    console.log("📏 [DEBUG] Distancia metros:", distanceMeters);
-    console.log("📏 [DEBUG] Bloques:", blocks);
-    console.log("💰 [DEBUG] Shipping cost:", shippingCost);
-
     return NextResponse.json({
       distanceMeters,
       blocks,
-      shippingCost,
+      shippingCost, // ✅ siempre número
       destinationCoords: destCoords,
     });
   } catch (err: any) {
     console.error("❌ Error calculando envío", err);
-    return NextResponse.json(
-      { error: "Error interno calculando costo de envío" },
-      { status: 500 }
-    );
+
+    // Si el error viene del geocode, devolvemos 400 (mejor UX)
+    const msg = err?.message || "Error interno calculando costo de envío";
+    const isGeocode = msg.includes("dirección destino");
+
+    return NextResponse.json({ error: msg }, { status: isGeocode ? 400 : 500 });
   }
 }

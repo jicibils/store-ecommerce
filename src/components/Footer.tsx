@@ -23,8 +23,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6 py-8 grid gap-4 md:grid-cols-3 text-sm">
         <div>
           <h2 className="text-lg font-bold mb-2">
-            <Logo />
-            {APP_NAME}
+            <Logo size={120} />
           </h2>
           <p className="text-muted-foreground">{CONTACT_ADDRESS}</p>
         </div>

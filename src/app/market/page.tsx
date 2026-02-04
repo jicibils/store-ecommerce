@@ -7,7 +7,6 @@ import { Product } from "@/types/Product";
 import ProductCard from "@/components/ProductCard";
 import ProductsSearch from "@/components/ProductsSearch";
 import ProductSkeleton from "@/components/ProductSkeleton";
-import CategoryCarousel from "@/components/CategoryCarousel";
 import { motion } from "framer-motion";
 import { CATEGORY_TYPE } from "@/lib/constants";
 import capitalize from "lodash.capitalize";
@@ -41,7 +40,7 @@ export default function MarketPage() {
             ...c,
             icon:
               (LucideIcons as any)[capitalize(c.icon)] || LucideIcons.Package,
-          }))
+          })),
         );
       }
       setCategoriesLoaded(true);
@@ -98,7 +97,7 @@ export default function MarketPage() {
 
       setLoading(false);
     },
-    [query, category, categoriesLoaded, categories]
+    [query, category, categoriesLoaded, categories],
   );
 
   // 🚀 Refresh on filters change
@@ -117,27 +116,19 @@ export default function MarketPage() {
       <main className="p-6 max-w-7xl mx-auto min-h-screen space-y-8">
         {/* Hero */}
         <section className="text-center">
-          <h1 className="text-3xl font-bold mb-2">Market 📦</h1>
+          <h1 className="text-3xl font-bold mb-2">Dietética 🌿</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Todo lo que necesitás en un solo lugar. Encontrá productos de
             calidad y ofertas especiales.
           </p>
         </section>
 
-        {/* Carrusel de categorías */}
-        <CategoryCarousel
-          categories={categories}
-          onSelectCategory={(id) => {
-            setCategory(id);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        />
-
         {/* Buscador y filtros */}
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           <div className="flex-1 w-full">
             <ProductsSearch
               type={[CATEGORY_TYPE.MARKET]}
+              showFilter={false}
               selectedCategory={category}
               onChange={(q, c) => {
                 setQuery(q);

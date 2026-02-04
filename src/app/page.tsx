@@ -1,11 +1,7 @@
 "use client";
 
 import Logo from "@/components/Logo";
-import {
-  // LucideStore,
-  LucideLeaf,
-  LucideTag,
-} from "lucide-react";
+import { LucideStore, LucideLeaf } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import GlobalSearchBar from "@/components/GlobalSearch";
@@ -14,20 +10,15 @@ export default function Home() {
   const router = useRouter();
 
   const features = [
-    // {
-    //   label: "Market",
-    //   icon: <LucideStore className="w-10 h-10 text-orange-600 animate-pulse" />,
-    //   route: "/market",
-    // },
     {
       label: "Verdulería",
       icon: <LucideLeaf className="w-10 h-10 text-green-600 animate-pulse" />,
       route: "/fruver",
     },
     {
-      label: "Ofertas",
-      icon: <LucideTag className="w-10 h-10 text-yellow-500 animate-pulse" />,
-      route: "/sales",
+      label: "Dietética",
+      icon: <LucideStore className="w-10 h-10 text-orange-600 animate-pulse" />,
+      route: "/market",
     },
   ];
 
@@ -37,34 +28,17 @@ export default function Home() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <div className="bg-orange-600 min-h-screen flex flex-col relative overflow-hidden">
-        {/* Curva superior decorativa */}
-        <div className="relative w-full h-[250px]">
-          <svg
-            className="absolute z-2 top-0 left-0 w-full h-full"
-            viewBox="0 0 1440 320"
-            preserveAspectRatio="none"
-          >
-            <path
-              fill="#ffffff"
-              fillOpacity="0.5"
-              d="M0,160L80,138.7C160,117,320,75,480,90.7C640,107,800,181,960,202.7C1120,224,1280,192,1360,176L1440,160V0H0Z"
-            />
-          </svg>
-        </div>
+      <div
+        className="min-h-screen flex flex-col relative overflow-hidden bg-cover bg-center"
+        style={{ backgroundImage: "url('/fondoFruver.png')" }}
+      >
+        <div className="absolute inset-0 bg-white/10 z-0" />
 
         {/* Logo central flotante */}
-        <div className="absolute top-[120px] left-1/2 transform -translate-x-1/2 z-20 bg-white rounded-full p-6 shadow-2xl border-4 border-orange-700">
-          <Logo size={180} />
+        <div className="absolute top-[50px] left-1/2 transform -translate-x-1/2 p-6">
+          <Logo size={600} />
         </div>
 
-        {/* Frase destacada */}
-        <div
-          className="mt-[200px] text-center text-white font-semibold text-2xl"
-          style={{ fontFamily: "Dancing Script, cursive" }}
-        >
-          Tu tienda de confianza, ahora digital !
-        </div>
         <GlobalSearchBar />
 
         {/* Accesos principales */}

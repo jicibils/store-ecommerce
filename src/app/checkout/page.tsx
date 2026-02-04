@@ -61,92 +61,67 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    if (form.delivery_option !== "entrega" || form.address.trim() === "") {
+    if (form.delivery_option !== "entrega") {
       setShippingCost(0);
       setDestCoords(null);
       return;
     }
 
-    const costoLocal = calcularCostoEnvioLocal(total);
-
-    if (costoLocal !== null) {
-      setShippingCost(costoLocal);
-
-      if (!destCoords) {
-        const handler = setTimeout(async () => {
-          try {
-            const res = await fetch("/api/calculateShipping", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                destination: form.address,
-                orderTotal: total,
-              }),
-            });
-            const data = await res.json();
-            if (data.destinationCoords) {
-              setDestCoords(data.destinationCoords);
-            }
-          } catch (err) {
-            console.error("Error obteniendo coordenadas", err);
-          }
-        }, 500);
-        return () => clearTimeout(handler);
-      }
-
+    if (form.address.trim() === "") {
+      setShippingCost(-1);
+      setDestCoords(null);
       return;
     }
 
-    // total < 10k → calculamos precio y coordenadas
     const handler = setTimeout(async () => {
       setShippingCost(-1);
+
       try {
         const res = await fetch("/api/calculateShipping", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             destination: form.address,
-            orderTotal: total,
           }),
         });
+
         const data = await res.json();
-        if (data.shippingCost) setShippingCost(data.shippingCost);
+
+        if (data.shippingCost === undefined || data.shippingCost === null) {
+          throw new Error("No se pudo calcular el costo de envío");
+        }
+
+        setShippingCost(data.shippingCost);
         if (data.destinationCoords) setDestCoords(data.destinationCoords);
       } catch (err) {
         console.error("Error calculando envío", err);
-        setShippingCost(0); // o dejalo en "calculando" si preferís bloquear
+        setShippingCost(-1);
+        setDestCoords(null);
       }
     }, 500);
 
     return () => clearTimeout(handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.delivery_option, form.address, total]);
-
-  function calcularCostoEnvioLocal(total: number): number | null {
-    if (total >= 20000) return 1500;
-    if (total >= 15000) return 2000;
-    return null; // usar cálculo por API si es menor a 15k
-  }
+  }, [form.delivery_option, form.address]);
 
   async function recalculateShippingFromCoords(coords: [number, number]) {
     try {
       const res = await fetch("/api/calculateShipping", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ coords, orderTotal: total }),
+        body: JSON.stringify({ coords }),
       });
       const data = await res.json();
-      if (data.shippingCost) {
+      if (data.shippingCost !== undefined && data.shippingCost !== null) {
         setShippingCost(data.shippingCost);
       }
     } catch (err) {
       console.error("Error recalculando envío", err);
-      setShippingCost(0);
+      setShippingCost(-1);
     }
   }
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -168,7 +143,7 @@ export default function CheckoutPage() {
 
       if (product.stock < item.quantity) {
         throw new Error(
-          `Stock insuficiente para ${item.name}. Solo quedan ${product.stock}`
+          `Stock insuficiente para ${item.name}. Solo quedan ${product.stock}`,
         );
       }
 
@@ -180,7 +155,7 @@ export default function CheckoutPage() {
 
   async function discountStock(
     currentProducts: { id: string; stock: number }[],
-    cart: CartItem[]
+    cart: CartItem[],
   ) {
     for (const item of cart) {
       const product = currentProducts.find((p) => p.id === item.id);
@@ -479,26 +454,10 @@ export default function CheckoutPage() {
                 form.address.trim() === ""
                   ? "—"
                   : shippingCost === -1
-                  ? "Calculando..."
-                  : shippingCost === 0
-                  ? "GRATIS"
-                  : `$${shippingCost.toLocaleString()}`}
+                    ? "Calculando..."
+                    : `$${shippingCost.toLocaleString()}`}
               </span>
             </div>
-            {form.delivery_option === "entrega" &&
-              form.address.trim() !== "" && (
-                <>
-                  {total >= 20000 ? (
-                    <div className="text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2 text-sm font-semibold">
-                      ✅ Envío $1.500 por superar $20.000
-                    </div>
-                  ) : total >= 15000 ? (
-                    <div className="text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2 text-sm">
-                      ✨ Envío $2.000 por superar $15.000
-                    </div>
-                  ) : null}
-                </>
-              )}
             {destCoords && (
               <>
                 <div className="bg-blue-50 border border-blue-200 text-blue-500 text-sm p-3 rounded mb-2">
