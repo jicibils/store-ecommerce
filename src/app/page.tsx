@@ -35,8 +35,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-white/10 z-0" />
 
         {/* Logo central flotante */}
-        <div className="absolute top-[50px] left-1/2 transform -translate-x-1/2 p-6">
-          <Logo size={600} />
+        <div className="absolute top-46 left-1/2 -translate-x-1/2 z-10">
+          <Logo className="w-[78vw] max-w-[360px] sm:w-[360px] md:w-[480px] lg:w-[560px]" />
         </div>
 
         <GlobalSearchBar />
