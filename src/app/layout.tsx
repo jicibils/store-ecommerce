@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingWhatsAppButton from "@/components/FloatingWhatsAppButton";
 import Banner from "@/components/Banner";
+import PatternGate from "@/components/PatternGate";
 
 import "./globals.css";
 
@@ -45,7 +46,7 @@ export default function RootLayout({
       <body
         className={`bg-gray-50 min-h-screen flex flex-col ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="bg-pattern" />
+        <PatternGate />
         <CartProvider>
           <Navbar />
           <Banner />

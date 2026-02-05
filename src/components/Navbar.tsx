@@ -41,7 +41,7 @@ export default function Navbar() {
         href="/"
         className="flex items-center gap-2 text-xl font-bold text-primary absolute left-1/2 transform -translate-x-1/2"
       >
-        <Logo size={150} />
+        <Logo size={100} />
       </Link>
 
       {/* Right controls */}
